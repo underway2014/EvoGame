@@ -1,4 +1,5 @@
 import { drawBlob, drawCapsule, drawTriangle, drawEyes, drawFishGoby, drawFishPerch } from './Renderer.js';
+import { aggression } from './config/ai.js';
 
 export default class Creature {
   constructor(x, y, level = 1, color = null, spec = null) {
@@ -20,18 +21,59 @@ export default class Creature {
       this.shape = 'blob';
       this.hasEyes = false;
     }
+    // 记录默认行为，便于攻击结束后恢复
+    this.defaultBehavior = this.behavior || 'wander';
     this.vx = (Math.random() * 2 - 1) * this.speed;
     this.vy = (Math.random() * 2 - 1) * this.speed;
     this.turnTimer = 0;
+    this.attackTimer = 0;
+    this.attackCooldown = 0;
   }
-  update(dt, bounds) {
+  update(dt, bounds, player = null, viewport = null) {
     this.turnTimer -= dt;
-    if (this.turnTimer <= 0) {
-      this.turnTimer = 0.5 + Math.random() * 2;
-      const angle = Math.random() * Math.PI * 2;
-      this.vx = Math.cos(angle) * this.speed * 0.6;
-      this.vy = Math.sin(angle) * this.speed * 0.6;
+    this.attackCooldown = Math.max(0, this.attackCooldown - dt);
+    this.attackTimer = Math.max(0, this.attackTimer - dt);
+
+    // 仅在视野内才可能触发攻击
+    const inViewport = viewport 
+      ? (this.x + this.radius >= viewport.x0 && this.x - this.radius <= viewport.x1 &&
+         this.y + this.radius >= viewport.y0 && this.y - this.radius <= viewport.y1)
+      : true;
+
+    // 攻击逻辑：高等级并满足概率与冷却时，进入攻击状态（且在视野内）
+    if (player && inViewport && this.level >= player.level + (aggression.levelAdvantage || 1)) {
+      if (this.attackCooldown <= 0 && this.attackTimer <= 0) {
+        if (Math.random() < (aggression.probability ?? 0.5)) {
+          this.attackTimer = aggression.durationSec ?? 1.5;
+          this.attackCooldown = aggression.cooldownSec ?? 3.0;
+          this.behavior = 'attack';
+        }
+      }
     }
+
+    if (this.attackTimer > 0 && player) {
+      // 向玩家追击
+      const dx = player.x - this.x;
+      const dy = player.y - this.y;
+      const len = Math.hypot(dx, dy) || 1;
+      const nx = dx / len, ny = dy / len;
+      const speed = (this.speed) * (aggression.speedMultiplier ?? 1.2);
+      this.vx = nx * speed;
+      this.vy = ny * speed;
+    } else {
+      // 游走逻辑
+      if (this.turnTimer <= 0) {
+        this.turnTimer = 0.5 + Math.random() * 2;
+        const angle = Math.random() * Math.PI * 2;
+        this.vx = Math.cos(angle) * this.speed * 0.6;
+        this.vy = Math.sin(angle) * this.speed * 0.6;
+      }
+      // 恢复默认行为标记
+      if (this.behavior === 'attack' && this.attackTimer <= 0) {
+        this.behavior = this.defaultBehavior;
+      }
+    }
+
     this.x += this.vx * dt;
     this.y += this.vy * dt;
     // 环绕屏幕

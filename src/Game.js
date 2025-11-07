@@ -44,10 +44,17 @@ export default class Game {
   update(dt) {
     this.resize();
     this.player.update(dt, this.world, this.input);
-    for (const c of this.creatures) c.update(dt, this.world);
-    // 更新摄像机跟随与边界限制
     const halfW = this.screen.width / 2;
     const halfH = this.screen.height / 2;
+    const viewport = {
+      x0: this.camera.x - halfW,
+      y0: this.camera.y - halfH,
+      x1: this.camera.x + halfW,
+      y1: this.camera.y + halfH,
+    };
+    for (const c of this.creatures) c.update(dt, this.world, this.player, viewport);
+    // 更新摄像机跟随与边界限制
+    
     this.camera.x = Math.max(halfW, Math.min(this.world.width - halfW, this.player.x));
     this.camera.y = Math.max(halfH, Math.min(this.world.height - halfH, this.player.y));
     this.handleCollisions();
