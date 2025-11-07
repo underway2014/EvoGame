@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="160" viewBox="0 0 180 160">
+  <rect width="180" height="160" fill="none"/>
+  <g>
+    <rect x="20" y="80" width="140" height="60" rx="8" fill="#8d5a2b" stroke="#654321" stroke-width="4"/>
+    <path d="M20,80 Q90,30 160,80" fill="#a56a34" stroke="#654321" stroke-width="4"/>
+    <rect x="85" y="90" width="10" height="18" fill="#caa56f" stroke="#654321" stroke-width="2"/>
+    <!-- 宝光 -->
+    <g opacity="0.6">
+      <path d="M40,80 L60,30 L80,80 Z" fill="#ffd54f"/>
+      <path d="M100,80 L120,25 L140,80 Z" fill="#fff176"/>
+    </g>
+  </g>
+</svg>

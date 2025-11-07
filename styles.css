@@ -21,3 +21,6 @@ html, body { margin: 0; height: 100%; background: #0f1225; overflow: hidden; }
 /* 游戏结束 */
 #goStats { font: 14px system-ui; opacity: 0.95; margin: 10px 0 14px; }
 #goRestart { appearance: none; border: none; border-radius: 8px; padding: 10px 16px; font: 600 14px system-ui; color: #0f1225; background: #4fc3f7; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer; }
+/* 宝箱弹窗 */
+#chestDesc { font: 14px system-ui; opacity: 0.95; margin: 10px 0 14px; }
+#chestOpenBtn { appearance: none; border: none; border-radius: 8px; padding: 10px 16px; font: 600 14px system-ui; color: #0f1225; background: #ffd54f; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer; }

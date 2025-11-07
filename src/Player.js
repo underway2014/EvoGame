@@ -19,11 +19,14 @@ export default class Player extends Creature {
     this.animTime = 0;
     this.contactPenaltyCooldown = 0;
     this.pendingEvolutionForm = null;
+    this.speedBoostTimer = 0;
+    this.speedBoostMultiplier = 1.0;
   }
   update(dt, bounds, input) {
     const axis = input.getAxis();
-    this.vx = axis.x * this.speed;
-    this.vy = axis.y * this.speed;
+    const boostMul = this.speedBoostTimer > 0 ? this.speedBoostMultiplier : 1.0;
+    this.vx = axis.x * this.speed * boostMul;
+    this.vy = axis.y * this.speed * boostMul;
     this.x += this.vx * dt;
     this.y += this.vy * dt;
     // 保持在边界内
@@ -32,6 +35,7 @@ export default class Player extends Creature {
     // 动画时间与状态机
     this.animTime += dt;
     this.contactPenaltyCooldown = Math.max(0, this.contactPenaltyCooldown - dt);
+    if (this.speedBoostTimer > 0) this.speedBoostTimer = Math.max(0, this.speedBoostTimer - dt);
     if (this.devourTimer > 0) {
       this.devourTimer -= dt;
       this.state = 'devour';

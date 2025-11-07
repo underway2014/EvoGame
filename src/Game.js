@@ -10,6 +10,9 @@ import Background from './Background.js';
 import FloatingText from './FloatingText.js';
 import Bubbles from './Bubbles.js';
 import WaterParticles from './WaterParticles.js';
+import Chest from './Chest.js';
+import { chestConfig } from './config/chest.js';
+import { showChestOverlay } from './ui/ChestOverlay.js';
 
 export default class Game {
   constructor(canvas, ctx) {
@@ -33,6 +36,8 @@ export default class Game {
     this.background = new Background();
     this.bubbles = new Bubbles(this.world, this.background);
     this.waterParticles = new WaterParticles(this.world, 140);
+    this.chests = [];
+    this.chestSpawnCooldown = 0;
   }
   resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -86,6 +91,14 @@ export default class Game {
     this.maybeTriggerGameOver();
     this.bubbles.update(dt);
     this.waterParticles.update(dt);
+    // 宝箱生成
+    this.chestSpawnCooldown -= dt;
+    if (!this.paused && !this.gameOver && this.chestSpawnCooldown <= 0) {
+      if (this.chests.length < chestConfig.maxCount && Math.random() < chestConfig.spawnProbability) {
+        this.chests.push(new Chest(this.world));
+      }
+      this.chestSpawnCooldown = chestConfig.spawnIntervalSec;
+    }
     // 更新浮动文本效果
     for (let i = this.fxTexts.length - 1; i >= 0; i--) {
       const ft = this.fxTexts[i];
@@ -97,6 +110,24 @@ export default class Game {
     if (this.spawnCooldown <= 0 && this.creatures.length < spawnRules.maxCreatures) {
       this.spawnCreature();
       this.spawnCooldown = spawnRules.spawnIntervalSec;
+    }
+    // 玩家与宝箱交互
+    if (this.chests) {
+      for (let i = this.chests.length - 1; i >= 0; i--) {
+        const chest = this.chests[i];
+        const dx = chest.x - this.player.x;
+        const dy = chest.y - this.player.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < chest.radius + this.player.radius && chest.state === 'closed' && !this.paused && !this.gameOver) {
+          this.paused = true;
+          showChestOverlay(chest, () => {
+            chest.applyReward(this.player);
+            this.addExpText(chestConfig.expReward);
+            this.chests.splice(i, 1);
+            this.paused = false;
+          });
+        }
+      }
     }
   }
   maybeTriggerEvolution() {
@@ -203,6 +234,12 @@ export default class Game {
     const vx1 = this.camera.x + halfW;
     const vy1 = this.camera.y + halfH;
     const viewport = { x0: vx0, y0: vy0, x1: vx1, y1: vy1 };
+    // 宝箱渲染（裁剪屏幕外）
+    for (const chest of this.chests) {
+      const inViewChest = (chest.x + chest.radius >= vx0 && chest.x - chest.radius <= vx1 && chest.y + chest.radius >= vy0 && chest.y - chest.radius <= vy1);
+      if (!inViewChest) continue;
+      chest.render(ctx);
+    }
     this.waterParticles.render(ctx, viewport);
     this.bubbles.render(ctx, viewport);
     
