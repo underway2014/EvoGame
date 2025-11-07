@@ -128,10 +128,15 @@ export default class Game {
           this.player.y -= ny * push;
           // 接触强者扣减经验（带冷却）
           if (c.level > this.player.level && this.player.contactPenaltyCooldown <= 0) {
+            const prevLevel = this.player.level;
             const penalty = computeContactPenalty(this.player.level, c.level);
             this.player.gainExp(-penalty);
             this.addExpText(-penalty);
             this.player.contactPenaltyCooldown = contactPenalty.cooldownSec;
+            // 如果发生掉级，给出提示
+            if (this.player.level < prevLevel) {
+              this.addLevelDownText(this.player.level);
+            }
           }
         }
       }
@@ -163,6 +168,11 @@ export default class Game {
     const text = `${sign}${amount} 经验`;
     const color = amount >= 0 ? '#4caf50' : '#ff5252';
     this.fxTexts.push(new FloatingText(this.player.x, this.player.y - this.player.radius - 8, text, color));
+  }
+  addLevelDownText(newLevel) {
+    const text = `掉级至 L${newLevel}`;
+    const color = '#ff5252';
+    this.fxTexts.push(new FloatingText(this.player.x, this.player.y - this.player.radius - 18, text, color));
   }
   render() {
     const ctx = this.ctx;

@@ -42,16 +42,33 @@ export default class Player extends Creature {
   }
   gainExp(amount) {
     this.exp = this.exp + amount;
-    if (this.exp >= this.expToNext) {
+    // 升级：可能连跳多级
+    while (this.exp >= this.expToNext) {
       this.exp -= this.expToNext;
       this.level += 1;
       this.radius = 10 + this.level * 3;
       this.speed = Math.max(80, 140 - this.level * 5);
       this.expToNext = expToNext(this.level);
-      // 根据等级更新形态
-      const form = getFormForLevel(this.level);
-      if (form && (form.shape !== this.shape || form.color !== this.color)) {
-        this.pendingEvolutionForm = form;
+      // 记录待进化形态（上行进化走弹窗）
+      const upForm = getFormForLevel(this.level);
+      if (upForm && (upForm.shape !== this.shape || upForm.color !== this.color)) {
+        this.pendingEvolutionForm = upForm;
+      }
+    }
+    // 掉级：当经验小于0且等级>1，向下回退，并携带欠缺经验
+    while (this.exp < 0 && this.level > 1) {
+      this.level -= 1;
+      // 进入新等级的经验需求，向下回退时把欠缺经验加到新等级的进度中
+      this.expToNext = expToNext(this.level);
+      this.exp += this.expToNext;
+      this.radius = 10 + this.level * 3;
+      this.speed = Math.max(80, 140 - this.level * 5);
+      // 下行进化立即应用形态（不弹窗）
+      const downForm = getFormForLevel(this.level);
+      if (downForm) {
+        this.shape = downForm.shape;
+        this.color = downForm.color;
+        this.pendingEvolutionForm = null;
       }
     }
   }
