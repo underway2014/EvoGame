@@ -8,6 +8,7 @@ import { showEvolutionOverlay } from './ui/EvolutionOverlay.js';
 import { showGameOverOverlay } from './ui/GameOverOverlay.js';
 import Background from './Background.js';
 import FloatingText from './FloatingText.js';
+import Bubbles from './Bubbles.js';
 
 export default class Game {
   constructor(canvas, ctx) {
@@ -17,7 +18,7 @@ export default class Game {
     this.screen = { width: canvas.clientWidth || window.innerWidth, height: canvas.clientHeight || window.innerHeight };
     this.world = { width: 2400, height: 1800 };
     this.input = new Input();
-    this.player = new Player(this.world.width / 2, this.world.height / 2);
+    this.player = new Player(this.world.width / 2, this.world.height * 3 / 4);
     this.camera = { x: this.player.x, y: this.player.y };
     this.creatures = [];
     this.fxTexts = [];
@@ -29,6 +30,7 @@ export default class Game {
     this.elapsed = 0;
     this.fxTexts = this.fxTexts || [];
     this.background = new Background();
+    this.bubbles = new Bubbles(this.world, this.background);
   }
   resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -80,6 +82,7 @@ export default class Game {
     this.camera.y = Math.max(halfH, Math.min(this.world.height - halfH, this.player.y));
     this.handleCollisions();
     this.maybeTriggerGameOver();
+    this.bubbles.update(dt);
     // 更新浮动文本效果
     for (let i = this.fxTexts.length - 1; i >= 0; i--) {
       const ft = this.fxTexts[i];
@@ -190,6 +193,8 @@ export default class Game {
 
     // 世界背景（海底SVG缩放铺满 + 顶端光线渐变）
     this.background.render(ctx, this.world, this.camera);
+    // 水泡效果（在背景之上、网格之下）
+    this.bubbles.render(ctx);
     const grid = 120;
     const vx0 = this.camera.x - halfW;
     const vy0 = this.camera.y - halfH;

@@ -44,6 +44,12 @@ export default class Background {
     }
     this.decorsInit = true;
   }
+  getDecors(world) {
+    // 公开方法：确保装饰已生成并返回列表
+    const tileH = (this.imgSand ? (this.imgSand.naturalHeight || this.imgSand.height) : 160);
+    this._ensureDecors(world, tileH);
+    return this.decors;
+  }
   render(ctx, world, camera) {
     // 水体铺满（图片优先，未加载用渐变）
     if (this.imgWater) {
