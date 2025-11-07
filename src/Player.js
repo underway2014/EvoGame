@@ -7,6 +7,9 @@ export default class Player extends Creature {
     this.exp = 0;
     this.expToNext = expToNext(1);
     this.speed = 120;
+    this.speciesId = 'player';
+    this.shape = 'blob';
+    this.hasEyes = true;
   }
   update(dt, bounds, input) {
     const axis = input.getAxis();
