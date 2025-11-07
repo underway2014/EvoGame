@@ -2,7 +2,7 @@ import Input from './Input.js';
 import Player from './Player.js';
 import Creature from './Creature.js';
 import { species } from './config/species.js';
-import { spawnRules, pickSpawnLevel, pickSpeciesByLevel } from './config/spawn.js';
+import { spawnRules, pickSpawnLevel, pickSpeciesByLevel, pickSpeciesByLevelWithAggression, shouldSpawnAggressive } from './config/spawn.js';
 import { computeDevourExp, computeContactPenalty, contactPenalty } from './config/progression.js';
 import { showEvolutionOverlay } from './ui/EvolutionOverlay.js';
 import { showGameOverOverlay } from './ui/GameOverOverlay.js';
@@ -52,7 +52,9 @@ export default class Game {
   }
   spawnCreature() {
     const level = pickSpawnLevel(this.player.level);
-    const speciesId = pickSpeciesByLevel(level);
+    const aggressiveCount = this.creatures.reduce((acc, c) => acc + (c.behavior === 'chase' ? 1 : 0), 0);
+    const needAggressive = shouldSpawnAggressive(aggressiveCount, this.creatures.length, spawnRules.aggressiveRatioTarget);
+    const speciesId = pickSpeciesByLevelWithAggression(level, needAggressive);
     const spec = species.find(s => s.id === speciesId) || null;
     const x = Math.random() * this.world.width;
     const y = Math.random() * this.world.height;

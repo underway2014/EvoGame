@@ -3,7 +3,7 @@ html, body { margin: 0; height: 100%; background: #0f1225; overflow: hidden; }
 #gameCanvas { display: block; touch-action: none; }
 
 #ui { position: fixed; inset: 0; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); pointer-events: none; }
-#joystick { position: absolute; left: 16px; bottom: 16px; width: clamp(90px, 18vw, 140px); height: clamp(90px, 18vw, 140px); border-radius: 50%; background: rgba(255,255,255,0.05); box-shadow: 0 0 0 2px rgba(255,255,255,0.08) inset; pointer-events: auto; touch-action: none; backdrop-filter: blur(4px); }
+#joystick { position: absolute; right: calc(28px + env(safe-area-inset-right)); bottom: calc(28px + env(safe-area-inset-bottom)); width: clamp(90px, 18vw, 140px); height: clamp(90px, 18vw, 140px); border-radius: 50%; background: rgba(255,255,255,0.05); box-shadow: 0 0 0 2px rgba(255,255,255,0.08) inset; pointer-events: auto; touch-action: none; backdrop-filter: blur(4px); }
 #stick { position: absolute; left: 50%; top: 50%; width: 42%; height: 42%; transform: translate(-50%, -50%); border-radius: 50%; background: rgba(255,255,255,0.18); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
 @media (pointer: fine) {
