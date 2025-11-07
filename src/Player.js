@@ -1,6 +1,7 @@
 import Creature from './Creature.js';
 import { progression, expToNext } from './config/progression.js';
-import { drawFish } from './Renderer.js';
+import { getFormForLevel } from './config/evolution.js';
+import { drawFish, drawFishGoby, drawFishPerch } from './Renderer.js';
 
 export default class Player extends Creature {
   constructor(x, y) {
@@ -9,7 +10,9 @@ export default class Player extends Creature {
     this.expToNext = expToNext(1);
     this.speed = 120;
     this.speciesId = 'player';
-    this.shape = 'fish';
+    const form = getFormForLevel(1);
+    this.shape = form.shape;
+    this.color = form.color;
     this.hasEyes = true;
     this.state = 'idle'; // idle | swim | devour
     this.devourTimer = 0;
@@ -44,6 +47,10 @@ export default class Player extends Creature {
       this.radius = 10 + this.level * 3;
       this.speed = Math.max(80, 140 - this.level * 5);
       this.expToNext = expToNext(this.level);
+      // 根据等级更新形态
+      const form = getFormForLevel(this.level);
+      this.shape = form.shape;
+      this.color = form.color;
     }
   }
   triggerDevour() {
@@ -51,11 +58,17 @@ export default class Player extends Creature {
   }
   render(ctx) {
     const angle = Math.atan2(this.vy, this.vx) || 0;
-    // 使用鱼形渲染
-    drawFish(ctx, this.x, this.y, this.radius, angle, this.color || '#ffdd55', {
-      state: this.state,
-      animTime: this.animTime,
-    });
+    // 使用形态对应的鱼类渲染
+    if (this.shape === 'fish_goby') {
+      drawFishGoby(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: this.animTime });
+    } else if (this.shape === 'fish_perch') {
+      drawFishPerch(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: this.animTime });
+    } else {
+      drawFish(ctx, this.x, this.y, this.radius, angle, this.color || '#ffdd55', {
+        state: this.state,
+        animTime: this.animTime,
+      });
+    }
     // 等级标签与HUD风格一致
     ctx.font = '12px system-ui';
     ctx.textAlign = 'center';

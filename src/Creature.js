@@ -1,4 +1,4 @@
-import { drawBlob, drawCapsule, drawTriangle, drawEyes } from './Renderer.js';
+import { drawBlob, drawCapsule, drawTriangle, drawEyes, drawFishGoby, drawFishPerch } from './Renderer.js';
 
 export default class Creature {
   constructor(x, y, level = 1, color = null, spec = null) {
@@ -48,6 +48,12 @@ export default class Creature {
         break;
       case 'tri':
         drawTriangle(ctx, this.x, this.y, this.radius, angle, this.color);
+        break;
+      case 'fish_goby':
+        drawFishGoby(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: performance.now() / 1000 });
+        break;
+      case 'fish_perch':
+        drawFishPerch(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: performance.now() / 1000 });
         break;
       case 'blob':
       default:
