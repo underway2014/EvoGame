@@ -18,6 +18,7 @@ export default class Player extends Creature {
     this.devourTimer = 0;
     this.animTime = 0;
     this.contactPenaltyCooldown = 0;
+    this.pendingEvolutionForm = null;
   }
   update(dt, bounds, input) {
     const axis = input.getAxis();
@@ -49,9 +50,16 @@ export default class Player extends Creature {
       this.expToNext = expToNext(this.level);
       // 根据等级更新形态
       const form = getFormForLevel(this.level);
-      this.shape = form.shape;
-      this.color = form.color;
+      if (form && (form.shape !== this.shape || form.color !== this.color)) {
+        this.pendingEvolutionForm = form;
+      }
     }
+  }
+  applyForm(form) {
+    if (!form) return;
+    this.shape = form.shape;
+    this.color = form.color;
+    this.pendingEvolutionForm = null;
   }
   triggerDevour() {
     this.devourTimer = 0.25; // 吞噬动画时长

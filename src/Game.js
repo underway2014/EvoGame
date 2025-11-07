@@ -4,6 +4,7 @@ import Creature from './Creature.js';
 import { species } from './config/species.js';
 import { spawnRules, pickSpawnLevel, pickSpeciesByLevel } from './config/spawn.js';
 import { computeDevourExp, computeContactPenalty, contactPenalty } from './config/progression.js';
+import { showEvolutionOverlay } from './ui/EvolutionOverlay.js';
 import FloatingText from './FloatingText.js';
 
 export default class Game {
@@ -20,6 +21,7 @@ export default class Game {
     this.fxTexts = [];
     this.spawnInitial();
     this.spawnCooldown = 0;
+    this.paused = false;
   }
   resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -43,6 +45,15 @@ export default class Game {
   }
   update(dt) {
     this.resize();
+    // 若暂停，仅更新必要的屏幕数据与摄像机居中，无逻辑推进
+    if (this.paused) {
+      const halfW = this.screen.width / 2;
+      const halfH = this.screen.height / 2;
+      this.camera.x = Math.max(halfW, Math.min(this.world.width - halfW, this.player.x));
+      this.camera.y = Math.max(halfH, Math.min(this.world.height - halfH, this.player.y));
+      return;
+    }
+
     this.player.update(dt, this.world, this.input);
     const halfW = this.screen.width / 2;
     const halfH = this.screen.height / 2;
@@ -71,6 +82,16 @@ export default class Game {
       this.spawnCooldown = spawnRules.spawnIntervalSec;
     }
   }
+  maybeTriggerEvolution() {
+    const form = this.player.pendingEvolutionForm;
+    if (form && !this.paused) {
+      this.paused = true;
+      showEvolutionOverlay(form, () => {
+        this.player.applyForm(form);
+        this.paused = false;
+      });
+    }
+  }
   handleCollisions() {
     // 玩家吃掉更弱的生物
     for (let i = this.creatures.length - 1; i >= 0; i--) {
@@ -87,6 +108,7 @@ export default class Game {
           this.player.gainExp(gained);
           if (this.player.triggerDevour) this.player.triggerDevour();
           this.addExpText(gained);
+          this.maybeTriggerEvolution();
         } else {
           // 更强时把玩家轻微弹开
           const nx = dx / (dist || 1);
@@ -101,9 +123,9 @@ export default class Game {
             this.addExpText(-penalty);
             this.player.contactPenaltyCooldown = contactPenalty.cooldownSec;
           }
-        }
       }
     }
+  }
   }
   addExpText(amount) {
     const sign = amount >= 0 ? '+' : '';

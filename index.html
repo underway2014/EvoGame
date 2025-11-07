@@ -8,6 +8,14 @@
 </head>
 <body>
   <canvas id="gameCanvas"></canvas>
+  <div id="evolutionOverlay" class="overlay hidden" aria-modal="true" role="dialog">
+    <div class="panel">
+      <h2 id="evoTitle">即将进化</h2>
+      <canvas id="evoPreview" width="240" height="160"></canvas>
+      <div id="evoDesc"></div>
+      <button id="evoConfirm">确认进化</button>
+    </div>
+  </div>
   <div id="ui">
     <div id="joystick" aria-label="joystick">
       <div id="stick"></div>

@@ -9,3 +9,12 @@ html, body { margin: 0; height: 100%; background: #0f1225; overflow: hidden; }
 @media (pointer: fine) {
   #joystick { display: none; }
 }
+
+/* 进化弹窗样式 */
+.overlay { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,0.45); z-index: 10; }
+.overlay.hidden { display: none; }
+.overlay .panel { width: min(92vw, 420px); background: rgba(20,24,40,0.9); border-radius: 12px; padding: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.5); text-align: center; color: #fff; }
+.overlay h2 { margin: 8px 0 12px; font: 600 18px system-ui; }
+#evoPreview { width: 100%; height: auto; background: rgba(255,255,255,0.04); border-radius: 8px; margin-bottom: 12px; }
+#evoDesc { font: 14px system-ui; opacity: 0.9; margin-bottom: 12px; }
+#evoConfirm { appearance: none; border: none; border-radius: 8px; padding: 10px 16px; font: 600 14px system-ui; color: #0f1225; background: #ffd54f; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer; }
