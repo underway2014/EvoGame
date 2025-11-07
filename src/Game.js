@@ -8,7 +8,8 @@ export default class Game {
   constructor(canvas, ctx) {
     this.canvas = canvas;
     this.ctx = ctx;
-    this.screen = { width: canvas.width, height: canvas.height };
+    // 使用CSS像素作为屏幕尺寸，避免与设备像素缩放混淆
+    this.screen = { width: canvas.clientWidth || window.innerWidth, height: canvas.clientHeight || window.innerHeight };
     this.world = { width: 2400, height: 1800 };
     this.input = new Input();
     this.player = new Player(this.world.width / 2, this.world.height / 2);
@@ -18,8 +19,12 @@ export default class Game {
     this.spawnCooldown = 0;
   }
   resize() {
-    this.screen.width = this.canvas.width;
-    this.screen.height = this.canvas.height;
+    const dpr = window.devicePixelRatio || 1;
+    // 优先使用客户端CSS尺寸；无法获取时退化为设备像素除以DPR
+    const cssW = this.canvas.clientWidth || Math.floor(this.canvas.width / dpr);
+    const cssH = this.canvas.clientHeight || Math.floor(this.canvas.height / dpr);
+    this.screen.width = cssW;
+    this.screen.height = cssH;
   }
   spawnInitial() {
     for (let i = 0; i < 15; i++) this.spawnCreature();
@@ -120,9 +125,10 @@ export default class Game {
     ctx.restore();
     ctx.restore(); // 退出世界坐标，回到屏幕坐标
 
-    // HUD（屏幕坐标）
+    // HUD（屏幕坐标，响应式字体）
     ctx.fillStyle = '#ffffff';
-    ctx.font = '16px system-ui';
+    const hudSize = Math.max(12, Math.min(20, Math.floor(this.screen.width * 0.02)));
+    ctx.font = `${hudSize}px system-ui`;
     const hud = `等级 ${this.player.level}  经验 ${this.player.exp}/${this.player.expToNext}  生物:${this.creatures.length}`;
     ctx.fillText(hud, 12, 22);
     const barW = 160, barH = 8;
