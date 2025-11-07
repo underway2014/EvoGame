@@ -3,4 +3,12 @@ export const species = [
   { id: 'goby', baseLevel: 2, radius: 12, speed: 95, behavior: 'wander', color: '#c58b4b', shape: 'fish_goby', eye: true },
   { id: 'perch', baseLevel: 3, radius: 14, speed: 95, behavior: 'chase', color: '#7aa35a', shape: 'fish_perch', eye: true },
   { id: 'predator', baseLevel: 4, radius: 18, speed: 110, behavior: 'chase', color: 'hsl(0,70%,60%)', shape: 'tri', eye: false },
+  { id: 'bonitoJ', baseLevel: 4, radius: 15, speed: 105, behavior: 'chase', color: '#2a75c7', shape: 'fish_bonito', eye: true },
+  { id: 'moray', baseLevel: 5, radius: 16, speed: 90, behavior: 'chase', color: '#3a7a59', shape: 'fish_moray', eye: false },
+  { id: 'piranha', baseLevel: 6, radius: 14, speed: 115, behavior: 'chase', color: '#c94040', shape: 'fish_piranha', eye: true },
+  { id: 'barracuda', baseLevel: 7, radius: 16, speed: 130, behavior: 'chase', color: '#4f8bd6', shape: 'fish_barracuda', eye: false },
+  { id: 'tuna', baseLevel: 8, radius: 18, speed: 115, behavior: 'chase', color: '#1f4c8f', shape: 'fish_tuna', eye: false },
+  { id: 'sailfish', baseLevel: 9, radius: 19, speed: 140, behavior: 'chase', color: '#173a78', shape: 'fish_sailfish', eye: false },
+  { id: 'reefSharkJ', baseLevel: 10, radius: 20, speed: 120, behavior: 'chase', color: '#7b8a99', shape: 'fish_reef_shark', eye: false },
+  { id: 'shark', baseLevel: 11, radius: 22, speed: 115, behavior: 'chase', color: '#6c7c8c', shape: 'fish_shark', eye: false },
 ];

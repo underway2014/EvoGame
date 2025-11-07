@@ -260,3 +260,124 @@ export function drawFishPerch(ctx, x, y, r, angle = 0, color = '#7aa35a', opts =
   drawEyes(ctx, r * 0.55, -r * 0.08, 0, r, { sepFactor: 0.3, forward: 0.12 });
   ctx.restore();
 }
+
+// 鲣鱼幼体（Bonito Juvenile）：细长、蓝色调，尾部分叉感
+export function drawFishBonito(ctx, x, y, r, angle = 0, color = '#2a75c7', opts = {}) {
+  const t = opts.animTime || 0;
+  const bodyLX = r * 1.6, bodyLY = r * 0.75;
+  const swing = Math.sin(t * 10) * 0.35;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+  ctx.beginPath(); ctx.ellipse(0, 0, bodyLX, bodyLY, 0, 0, Math.PI * 2);
+  const grad = ctx.createLinearGradient(-bodyLX, -bodyLY, bodyLX, bodyLY);
+  grad.addColorStop(0, color); grad.addColorStop(1, 'rgba(200,230,255,0.2)');
+  ctx.fillStyle = grad; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 2; ctx.stroke();
+  // 分叉尾
+  ctx.save(); ctx.translate(-bodyLX, 0); ctx.rotate(swing * 0.4);
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-r * 1.2, r * 0.5); ctx.lineTo(-r * 0.8, 0); ctx.lineTo(-r * 1.2, -r * 0.5); ctx.closePath();
+  ctx.fillStyle = color; ctx.fill(); ctx.restore();
+  // 眼睛
+  drawEyes(ctx, r * 0.65, -r * 0.05, 0, r, { sepFactor: 0.28, forward: 0.1 });
+  ctx.restore();
+}
+
+// 海鳗（Moray）：细长，暗绿，嘴巴更大
+export function drawFishMoray(ctx, x, y, r, angle = 0, color = '#3a7a59', opts = {}) {
+  const t = opts.animTime || 0; const bodyLX = r * 2.2, bodyLY = r * 0.6; const swing = Math.sin(t * 7) * 0.45;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+  ctx.beginPath(); ctx.ellipse(0, 0, bodyLX, bodyLY, 0, 0, Math.PI * 2);
+  const grad = ctx.createLinearGradient(-bodyLX, -bodyLY, bodyLX, bodyLY);
+  grad.addColorStop(0, color); grad.addColorStop(1, 'rgba(255,255,255,0.08)'); ctx.fillStyle = grad; ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 2; ctx.stroke();
+  // 摆尾
+  ctx.save(); ctx.translate(-bodyLX, 0); ctx.rotate(swing * 0.5);
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-r * 1.1, r * 0.4); ctx.lineTo(-r * 1.1, -r * 0.4); ctx.closePath(); ctx.fillStyle = color; ctx.fill(); ctx.restore();
+  // 大嘴
+  ctx.beginPath(); ctx.moveTo(bodyLX, 0); ctx.lineTo(bodyLX - r * 0.5, r * 0.4); ctx.lineTo(bodyLX - r * 0.5, -r * 0.4); ctx.closePath(); ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fill();
+  drawEyes(ctx, r * 0.6, -r * 0.05, 0, r, { sepFactor: 0.3, forward: 0.08 }); ctx.restore();
+}
+
+// 食人鱼（Piranha）：短胖，红调，尖锐三角牙
+export function drawFishPiranha(ctx, x, y, r, angle = 0, color = '#c94040', opts = {}) {
+  const t = opts.animTime || 0; const bodyLX = r * 1.2, bodyLY = r * 0.85; const swing = Math.sin(t * 11) * 0.4;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+  ctx.beginPath(); ctx.ellipse(0, 0, bodyLX, bodyLY, 0, 0, Math.PI * 2);
+  const grad = ctx.createLinearGradient(-bodyLX, -bodyLY, bodyLX, bodyLY); grad.addColorStop(0, color); grad.addColorStop(1, 'rgba(255,200,200,0.18)'); ctx.fillStyle = grad; ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 2; ctx.stroke();
+  // 尾巴
+  ctx.save(); ctx.translate(-bodyLX, 0); ctx.rotate(swing * 0.3);
+  ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-r * 1.0, r * 0.45); ctx.lineTo(-r * 1.0, -r * 0.45); ctx.closePath(); ctx.fillStyle = color; ctx.fill(); ctx.restore();
+  // 牙齿（白色三角）
+  ctx.fillStyle = '#fff'; for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.moveTo(bodyLX - r * 0.4 + i * r * 0.12, r * 0.2); ctx.lineTo(bodyLX - r * 0.48 + i * r * 0.12, r * 0.05); ctx.lineTo(bodyLX - r * 0.36 + i * r * 0.12, r * 0.1); ctx.closePath(); ctx.fill(); }
+  // 眼睛
+  drawEyes(ctx, r * 0.55, -r * 0.05, 0, r, { sepFactor: 0.28, forward: 0.1 }); ctx.restore();
+}
+
+// 梭鱼（Barracuda）：极细长，尖嘴
+export function drawFishBarracuda(ctx, x, y, r, angle = 0, color = '#4f8bd6', opts = {}) {
+  const t = opts.animTime || 0; const bodyLX = r * 2.0, bodyLY = r * 0.55; const swing = Math.sin(t * 12) * 0.35;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+  ctx.beginPath(); ctx.ellipse(0, 0, bodyLX, bodyLY, 0, 0, Math.PI * 2);
+  const grad = ctx.createLinearGradient(-bodyLX, -bodyLY, bodyLX, bodyLY); grad.addColorStop(0, color); grad.addColorStop(1, 'rgba(255,255,255,0.1)'); ctx.fillStyle = grad; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 2; ctx.stroke();
+  // 尾巴
+  ctx.save(); ctx.translate(-bodyLX, 0); ctx.rotate(swing * 0.4); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-r * 1.2, r * 0.45); ctx.lineTo(-r * 1.2, -r * 0.45); ctx.closePath(); ctx.fillStyle = color; ctx.fill(); ctx.restore();
+  // 尖嘴
+  ctx.beginPath(); ctx.moveTo(bodyLX, 0); ctx.lineTo(bodyLX - r * 0.7, r * 0.2); ctx.lineTo(bodyLX - r * 0.7, -r * 0.2); ctx.closePath(); ctx.fillStyle = 'rgba(0,0,0,0.75)'; ctx.fill();
+  drawEyes(ctx, r * 0.65, -r * 0.07, 0, r, { sepFactor: 0.26, forward: 0.1 }); ctx.restore();
+}
+
+// 金枪鱼（Tuna）：宽厚，深蓝，尾部小鳍列
+export function drawFishTuna(ctx, x, y, r, angle = 0, color = '#1f4c8f', opts = {}) {
+  const t = opts.animTime || 0; const bodyLX = r * 1.5, bodyLY = r * 0.85; const swing = Math.sin(t * 9) * 0.3;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+  ctx.beginPath(); ctx.ellipse(0, 0, bodyLX, bodyLY, 0, 0, Math.PI * 2);
+  const grad = ctx.createLinearGradient(-bodyLX, -bodyLY, bodyLX, bodyLY); grad.addColorStop(0, color); grad.addColorStop(1, 'rgba(180,200,255,0.15)'); ctx.fillStyle = grad; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 2; ctx.stroke();
+  // 尾巴
+  ctx.save(); ctx.translate(-bodyLX, 0); ctx.rotate(swing * 0.3); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-r * 1.1, r * 0.5); ctx.lineTo(-r * 1.1, -r * 0.5); ctx.closePath(); ctx.fillStyle = color; ctx.fill(); ctx.restore();
+  // 小鳍列（黄色）
+  ctx.fillStyle = '#ffd54f'; for (let i = -3; i <= 3; i++) { ctx.fillRect(-bodyLX + r * 0.2 + i * r * 0.18, -r * 0.2, r * 0.08, r * 0.12); }
+  drawEyes(ctx, r * 0.6, -r * 0.06, 0, r, { sepFactor: 0.3, forward: 0.1 }); ctx.restore();
+}
+
+// 旗鱼（Sailfish）：高背鳍（帆），深蓝
+export function drawFishSailfish(ctx, x, y, r, angle = 0, color = '#173a78', opts = {}) {
+  const t = opts.animTime || 0; const bodyLX = r * 1.7, bodyLY = r * 0.8; const swing = Math.sin(t * 10) * 0.35;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+  ctx.beginPath(); ctx.ellipse(0, 0, bodyLX, bodyLY, 0, 0, Math.PI * 2);
+  const grad = ctx.createLinearGradient(-bodyLX, -bodyLY, bodyLX, bodyLY); grad.addColorStop(0, color); grad.addColorStop(1, 'rgba(200,210,255,0.12)'); ctx.fillStyle = grad; ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 2; ctx.stroke();
+  // 帆状背鳍
+  ctx.beginPath(); ctx.moveTo(-r * 0.2, -bodyLY); ctx.lineTo(r * 0.6, -bodyLY); ctx.lineTo(r * 0.2, -bodyLY - r * 0.9); ctx.closePath(); ctx.fillStyle = 'rgba(30,60,130,0.9)'; ctx.fill();
+  // 尾巴
+  ctx.save(); ctx.translate(-bodyLX, 0); ctx.rotate(swing * 0.35); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-r * 1.2, r * 0.5); ctx.lineTo(-r * 1.2, -r * 0.5); ctx.closePath(); ctx.fillStyle = color; ctx.fill(); ctx.restore();
+  drawEyes(ctx, r * 0.65, -r * 0.06, 0, r, { sepFactor: 0.28, forward: 0.1 }); ctx.restore();
+}
+
+// 礁鲨幼体（Reef Shark Juvenile）：灰调，背鳍明显
+export function drawFishReefShark(ctx, x, y, r, angle = 0, color = '#7b8a99', opts = {}) {
+  const t = opts.animTime || 0; const bodyLX = r * 1.6, bodyLY = r * 0.85; const swing = Math.sin(t * 8) * 0.3;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+  ctx.beginPath(); ctx.ellipse(0, 0, bodyLX, bodyLY, 0, 0, Math.PI * 2);
+  const grad = ctx.createLinearGradient(-bodyLX, -bodyLY, bodyLX, bodyLY); grad.addColorStop(0, color); grad.addColorStop(1, 'rgba(255,255,255,0.1)'); ctx.fillStyle = grad; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 2; ctx.stroke();
+  // 背鳍
+  ctx.beginPath(); ctx.moveTo(-r * 0.2, -bodyLY); ctx.lineTo(r * 0.2, -bodyLY); ctx.lineTo(0, -bodyLY - r * 0.6); ctx.closePath(); ctx.fillStyle = 'rgba(120,130,140,0.95)'; ctx.fill();
+  // 尾巴
+  ctx.save(); ctx.translate(-bodyLX, 0); ctx.rotate(swing * 0.3); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-r * 1.1, r * 0.45); ctx.lineTo(-r * 1.1, -r * 0.45); ctx.closePath(); ctx.fillStyle = color; ctx.fill(); ctx.restore();
+  // 嘴部
+  ctx.beginPath(); ctx.moveTo(bodyLX, 0); ctx.lineTo(bodyLX - r * 0.4, r * 0.25); ctx.lineTo(bodyLX - r * 0.4, -r * 0.25); ctx.closePath(); ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fill();
+  drawEyes(ctx, r * 0.6, -r * 0.06, 0, r, { sepFactor: 0.3, forward: 0.1 }); ctx.restore();
+}
+
+// 鲨鱼（终极形态）：更大，灰调，背鳍更高，嘴部更大
+export function drawFishShark(ctx, x, y, r, angle = 0, color = '#6c7c8c', opts = {}) {
+  const t = opts.animTime || 0; const bodyLX = r * 1.8, bodyLY = r * 0.9; const swing = Math.sin(t * 7) * 0.28;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+  ctx.beginPath(); ctx.ellipse(0, 0, bodyLX, bodyLY, 0, 0, Math.PI * 2);
+  const grad = ctx.createLinearGradient(-bodyLX, -bodyLY, bodyLX, bodyLY); grad.addColorStop(0, color); grad.addColorStop(1, 'rgba(255,255,255,0.1)'); ctx.fillStyle = grad; ctx.fill(); ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 2; ctx.stroke();
+  // 高背鳍
+  ctx.beginPath(); ctx.moveTo(-r * 0.2, -bodyLY); ctx.lineTo(r * 0.25, -bodyLY); ctx.lineTo(0, -bodyLY - r * 0.8); ctx.closePath(); ctx.fillStyle = 'rgba(110,120,130,0.95)'; ctx.fill();
+  // 尾巴
+  ctx.save(); ctx.translate(-bodyLX, 0); ctx.rotate(swing * 0.28); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(-r * 1.2, r * 0.5); ctx.lineTo(-r * 1.2, -r * 0.5); ctx.closePath(); ctx.fillStyle = color; ctx.fill(); ctx.restore();
+  // 大嘴
+  ctx.beginPath(); ctx.moveTo(bodyLX, 0); ctx.lineTo(bodyLX - r * 0.55, r * 0.3); ctx.lineTo(bodyLX - r * 0.55, -r * 0.3); ctx.closePath(); ctx.fillStyle = 'rgba(0,0,0,0.75)'; ctx.fill();
+  drawEyes(ctx, r * 0.62, -r * 0.06, 0, r, { sepFactor: 0.3, forward: 0.1 }); ctx.restore();
+}

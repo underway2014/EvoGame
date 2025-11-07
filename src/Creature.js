@@ -1,4 +1,4 @@
-import { drawBlob, drawCapsule, drawTriangle, drawEyes, drawFishGoby, drawFishPerch } from './Renderer.js';
+import { drawBlob, drawCapsule, drawTriangle, drawEyes, drawFishGoby, drawFishPerch, drawFishBonito, drawFishMoray, drawFishPiranha, drawFishBarracuda, drawFishTuna, drawFishSailfish, drawFishReefShark, drawFishShark } from './Renderer.js';
 import { aggression } from './config/ai.js';
 
 export default class Creature {
@@ -96,6 +96,30 @@ export default class Creature {
         break;
       case 'fish_perch':
         drawFishPerch(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: performance.now() / 1000 });
+        break;
+      case 'fish_bonito':
+        drawFishBonito(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: performance.now() / 1000 });
+        break;
+      case 'fish_moray':
+        drawFishMoray(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: performance.now() / 1000 });
+        break;
+      case 'fish_piranha':
+        drawFishPiranha(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: performance.now() / 1000 });
+        break;
+      case 'fish_barracuda':
+        drawFishBarracuda(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: performance.now() / 1000 });
+        break;
+      case 'fish_tuna':
+        drawFishTuna(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: performance.now() / 1000 });
+        break;
+      case 'fish_sailfish':
+        drawFishSailfish(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: performance.now() / 1000 });
+        break;
+      case 'fish_reef_shark':
+        drawFishReefShark(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: performance.now() / 1000 });
+        break;
+      case 'fish_shark':
+        drawFishShark(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: performance.now() / 1000 });
         break;
       case 'blob':
       default:
