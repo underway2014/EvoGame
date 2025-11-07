@@ -28,7 +28,7 @@ export default class Game {
     this.devouredCount = 0;
     this.elapsed = 0;
     this.fxTexts = this.fxTexts || [];
-    this.background = new Background('./assets/backgrounds/seabed.svg');
+    this.background = new Background();
   }
   resize() {
     const dpr = window.devicePixelRatio || 1;
