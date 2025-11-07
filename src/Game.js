@@ -5,6 +5,7 @@ import { species } from './config/species.js';
 import { spawnRules, pickSpawnLevel, pickSpeciesByLevel } from './config/spawn.js';
 import { computeDevourExp, computeContactPenalty, contactPenalty } from './config/progression.js';
 import { showEvolutionOverlay } from './ui/EvolutionOverlay.js';
+import { showGameOverOverlay } from './ui/GameOverOverlay.js';
 import FloatingText from './FloatingText.js';
 
 export default class Game {
@@ -22,6 +23,10 @@ export default class Game {
     this.spawnInitial();
     this.spawnCooldown = 0;
     this.paused = false;
+    this.gameOver = false;
+    this.devouredCount = 0;
+    this.elapsed = 0;
+    this.fxTexts = this.fxTexts || [];
   }
   resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -46,13 +51,16 @@ export default class Game {
   update(dt) {
     this.resize();
     // 若暂停，仅更新必要的屏幕数据与摄像机居中，无逻辑推进
-    if (this.paused) {
+    if (this.paused || this.gameOver) {
       const halfW = this.screen.width / 2;
       const halfH = this.screen.height / 2;
       this.camera.x = Math.max(halfW, Math.min(this.world.width - halfW, this.player.x));
       this.camera.y = Math.max(halfH, Math.min(this.world.height - halfH, this.player.y));
       return;
     }
+
+    // 计时
+    this.elapsed += dt;
 
     this.player.update(dt, this.world, this.input);
     const halfW = this.screen.width / 2;
@@ -69,6 +77,7 @@ export default class Game {
     this.camera.x = Math.max(halfW, Math.min(this.world.width - halfW, this.player.x));
     this.camera.y = Math.max(halfH, Math.min(this.world.height - halfH, this.player.y));
     this.handleCollisions();
+    this.maybeTriggerGameOver();
     // 更新浮动文本效果
     for (let i = this.fxTexts.length - 1; i >= 0; i--) {
       const ft = this.fxTexts[i];
@@ -108,6 +117,7 @@ export default class Game {
           this.player.gainExp(gained);
           if (this.player.triggerDevour) this.player.triggerDevour();
           this.addExpText(gained);
+          this.devouredCount += 1;
           this.maybeTriggerEvolution();
         } else {
           // 更强时把玩家轻微弹开
@@ -123,9 +133,30 @@ export default class Game {
             this.addExpText(-penalty);
             this.player.contactPenaltyCooldown = contactPenalty.cooldownSec;
           }
+        }
       }
     }
   }
+  maybeTriggerGameOver() {
+    if (this.player.level === 1 && this.player.exp < 0 && !this.gameOver) {
+      this.gameOver = true;
+      this.paused = true;
+      const stats = { devoured: this.devouredCount, time: this.elapsed, level: this.player.level };
+      showGameOverOverlay(stats, () => this.restart());
+    }
+  }
+  restart() {
+    // 重置核心状态
+    this.player = new Player(this.world.width / 2, this.world.height / 2);
+    this.creatures = [];
+    this.fxTexts = [];
+    this.devouredCount = 0;
+    this.elapsed = 0;
+    this.spawnCooldown = 0;
+    this.gameOver = false;
+    this.paused = false;
+    this.camera = { x: this.player.x, y: this.player.y };
+    this.spawnInitial();
   }
   addExpText(amount) {
     const sign = amount >= 0 ? '+' : '';
@@ -184,12 +215,15 @@ export default class Game {
     ctx.fillStyle = '#ffffff';
     const hudSize = Math.max(12, Math.min(20, Math.floor(this.screen.width * 0.02)));
     ctx.font = `${hudSize}px system-ui`;
-    const hud = `等级 ${this.player.level}  经验 ${this.player.exp}/${this.player.expToNext}  生物:${this.creatures.length}`;
+    const ratio = Math.max(0, Math.min(1, this.player.exp / this.player.expToNext));
+    const mm = String(Math.floor(this.elapsed / 60)).padStart(2, '0');
+    const ss = String(Math.floor(this.elapsed % 60)).padStart(2, '0');
+    const hud = `等级 ${this.player.level}  经验 ${Math.max(0, this.player.exp)}/${this.player.expToNext}  生物:${this.creatures.length}  吞噬:${this.devouredCount}  时间:${mm}:${ss}`;
     ctx.fillText(hud, 12, 22);
     const barW = 160, barH = 8;
     ctx.strokeStyle = '#aaa';
     ctx.strokeRect(12, 28, barW, barH);
     ctx.fillStyle = '#4caf50';
-    ctx.fillRect(12, 28, barW * (this.player.exp / this.player.expToNext), barH);
+    ctx.fillRect(12, 28, barW * ratio, barH);
   }
 }

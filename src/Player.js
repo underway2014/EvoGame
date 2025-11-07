@@ -41,7 +41,7 @@ export default class Player extends Creature {
     }
   }
   gainExp(amount) {
-    this.exp = Math.max(0, this.exp + amount);
+    this.exp = this.exp + amount;
     if (this.exp >= this.expToNext) {
       this.exp -= this.expToNext;
       this.level += 1;
