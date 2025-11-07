@@ -6,6 +6,7 @@ import { spawnRules, pickSpawnLevel, pickSpeciesByLevel } from './config/spawn.j
 import { computeDevourExp, computeContactPenalty, contactPenalty } from './config/progression.js';
 import { showEvolutionOverlay } from './ui/EvolutionOverlay.js';
 import { showGameOverOverlay } from './ui/GameOverOverlay.js';
+import Background from './Background.js';
 import FloatingText from './FloatingText.js';
 
 export default class Game {
@@ -27,6 +28,7 @@ export default class Game {
     this.devouredCount = 0;
     this.elapsed = 0;
     this.fxTexts = this.fxTexts || [];
+    this.background = new Background('./assets/backgrounds/seabed.svg');
   }
   resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -178,6 +180,7 @@ export default class Game {
     const ctx = this.ctx;
     // 清屏
     ctx.clearRect(0, 0, this.screen.width, this.screen.height);
+    // 屏幕层不再填充纯色/渐变，背景由世界层的SVG全覆盖
 
     const halfW = this.screen.width / 2;
     const halfH = this.screen.height / 2;
@@ -185,9 +188,8 @@ export default class Game {
     ctx.save();
     ctx.translate(-this.camera.x + halfW, -this.camera.y + halfH);
 
-    // 世界背景（深色底 + 网格）
-    ctx.fillStyle = '#0c1022';
-    ctx.fillRect(0, 0, this.world.width, this.world.height);
+    // 世界背景（海底SVG缩放铺满 + 顶端光线渐变）
+    this.background.render(ctx, this.world, this.camera);
     const grid = 120;
     const vx0 = this.camera.x - halfW;
     const vy0 = this.camera.y - halfH;
