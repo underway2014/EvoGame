@@ -63,6 +63,7 @@ export default class Game {
         if (canDevourByLevel || canDevourBySize) {
           this.creatures.splice(i, 1);
           this.player.gainExp(1 + Math.max(0, this.player.level - c.level));
+          if (this.player.triggerDevour) this.player.triggerDevour();
         } else {
           // 更强时把玩家轻微弹开
           const nx = dx / (dist || 1);
