@@ -14,6 +14,7 @@ export default class Player extends Creature {
     this.state = 'idle'; // idle | swim | devour
     this.devourTimer = 0;
     this.animTime = 0;
+    this.contactPenaltyCooldown = 0;
   }
   update(dt, bounds, input) {
     const axis = input.getAxis();
@@ -26,6 +27,7 @@ export default class Player extends Creature {
     this.y = Math.max(this.radius, Math.min(bounds.height - this.radius, this.y));
     // 动画时间与状态机
     this.animTime += dt;
+    this.contactPenaltyCooldown = Math.max(0, this.contactPenaltyCooldown - dt);
     if (this.devourTimer > 0) {
       this.devourTimer -= dt;
       this.state = 'devour';
@@ -35,7 +37,7 @@ export default class Player extends Creature {
     }
   }
   gainExp(amount) {
-    this.exp += amount;
+    this.exp = Math.max(0, this.exp + amount);
     if (this.exp >= this.expToNext) {
       this.exp -= this.expToNext;
       this.level += 1;

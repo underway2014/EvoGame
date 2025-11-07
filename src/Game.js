@@ -3,6 +3,8 @@ import Player from './Player.js';
 import Creature from './Creature.js';
 import { species } from './config/species.js';
 import { spawnRules, pickSpawnLevel, pickSpeciesByLevel } from './config/spawn.js';
+import { computeDevourExp, computeContactPenalty, contactPenalty } from './config/progression.js';
+import FloatingText from './FloatingText.js';
 
 export default class Game {
   constructor(canvas, ctx) {
@@ -15,6 +17,7 @@ export default class Game {
     this.player = new Player(this.world.width / 2, this.world.height / 2);
     this.camera = { x: this.player.x, y: this.player.y };
     this.creatures = [];
+    this.fxTexts = [];
     this.spawnInitial();
     this.spawnCooldown = 0;
   }
@@ -48,6 +51,12 @@ export default class Game {
     this.camera.x = Math.max(halfW, Math.min(this.world.width - halfW, this.player.x));
     this.camera.y = Math.max(halfH, Math.min(this.world.height - halfH, this.player.y));
     this.handleCollisions();
+    // 更新浮动文本效果
+    for (let i = this.fxTexts.length - 1; i >= 0; i--) {
+      const ft = this.fxTexts[i];
+      ft.update(dt);
+      if (ft.isDead()) this.fxTexts.splice(i, 1);
+    }
     // 定时生成新生物
     this.spawnCooldown -= dt;
     if (this.spawnCooldown <= 0 && this.creatures.length < spawnRules.maxCreatures) {
@@ -67,8 +76,10 @@ export default class Game {
         const canDevourBySize = c.radius < this.player.radius * 0.95; // 体型明显更小可吞噬
         if (canDevourByLevel || canDevourBySize) {
           this.creatures.splice(i, 1);
-          this.player.gainExp(1 + Math.max(0, this.player.level - c.level));
+          const gained = computeDevourExp(this.player.level, c.level);
+          this.player.gainExp(gained);
           if (this.player.triggerDevour) this.player.triggerDevour();
+          this.addExpText(gained);
         } else {
           // 更强时把玩家轻微弹开
           const nx = dx / (dist || 1);
@@ -76,9 +87,22 @@ export default class Game {
           const push = 8 + Math.max(0, c.level - this.player.level) * 2;
           this.player.x -= nx * push;
           this.player.y -= ny * push;
+          // 接触强者扣减经验（带冷却）
+          if (c.level > this.player.level && this.player.contactPenaltyCooldown <= 0) {
+            const penalty = computeContactPenalty(this.player.level, c.level);
+            this.player.gainExp(-penalty);
+            this.addExpText(-penalty);
+            this.player.contactPenaltyCooldown = contactPenalty.cooldownSec;
+          }
         }
       }
     }
+  }
+  addExpText(amount) {
+    const sign = amount >= 0 ? '+' : '';
+    const text = `${sign}${amount} 经验`;
+    const color = amount >= 0 ? '#4caf50' : '#ff5252';
+    this.fxTexts.push(new FloatingText(this.player.x, this.player.y - this.player.radius - 8, text, color));
   }
   render() {
     const ctx = this.ctx;
@@ -123,6 +147,8 @@ export default class Game {
     ctx.shadowBlur = 12;
     this.player.render(ctx);
     ctx.restore();
+    // 渲染浮动文本（世界坐标）
+    for (const ft of this.fxTexts) ft.render(ctx);
     ctx.restore(); // 退出世界坐标，回到屏幕坐标
 
     // HUD（屏幕坐标，响应式字体）
