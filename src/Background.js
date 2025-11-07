@@ -87,9 +87,28 @@ export default class Background {
     }
     // 顶端光线渐变（轻微）
     const light = ctx.createLinearGradient(0, 0, 0, world.height);
-    light.addColorStop(0, 'rgba(255,255,255,0.08)');
+    light.addColorStop(0, 'rgba(255,255,255,0.06)');
     light.addColorStop(1, 'rgba(255,255,255,0.02)');
     ctx.fillStyle = light;
     ctx.fillRect(0, 0, world.width, world.height);
+
+    // 顶部动态光束（模拟水下光斑，极轻量）
+    const t = performance.now() / 1000;
+    ctx.save();
+    ctx.globalAlpha = 0.06;
+    ctx.fillStyle = '#ffffff';
+    const beams = 6;
+    for (let i = 0; i < beams; i++) {
+      const bx = (i / beams) * world.width + Math.sin(t * 0.6 + i) * 60;
+      const bw = 80 + Math.sin(t * 0.9 + i * 1.7) * 20;
+      ctx.beginPath();
+      ctx.moveTo(bx - bw / 2, 0);
+      ctx.lineTo(bx + bw / 2, 0);
+      ctx.lineTo(bx + bw * 0.3, world.height * 0.5);
+      ctx.lineTo(bx - bw * 0.3, world.height * 0.5);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
   }
 }

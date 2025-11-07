@@ -9,6 +9,7 @@ import { showGameOverOverlay } from './ui/GameOverOverlay.js';
 import Background from './Background.js';
 import FloatingText from './FloatingText.js';
 import Bubbles from './Bubbles.js';
+import WaterParticles from './WaterParticles.js';
 
 export default class Game {
   constructor(canvas, ctx) {
@@ -31,6 +32,7 @@ export default class Game {
     this.fxTexts = this.fxTexts || [];
     this.background = new Background();
     this.bubbles = new Bubbles(this.world, this.background);
+    this.waterParticles = new WaterParticles(this.world, 140);
   }
   resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -83,6 +85,7 @@ export default class Game {
     this.handleCollisions();
     this.maybeTriggerGameOver();
     this.bubbles.update(dt);
+    this.waterParticles.update(dt);
     // 更新浮动文本效果
     for (let i = this.fxTexts.length - 1; i >= 0; i--) {
       const ft = this.fxTexts[i];
@@ -193,13 +196,16 @@ export default class Game {
 
     // 世界背景（海底SVG缩放铺满 + 顶端光线渐变）
     this.background.render(ctx, this.world, this.camera);
-    // 水泡效果（在背景之上、网格之下）
-    this.bubbles.render(ctx);
+    // 水体微粒与水泡（在背景之上、网格之下）
     const grid = 120;
     const vx0 = this.camera.x - halfW;
     const vy0 = this.camera.y - halfH;
     const vx1 = this.camera.x + halfW;
     const vy1 = this.camera.y + halfH;
+    const viewport = { x0: vx0, y0: vy0, x1: vx1, y1: vy1 };
+    this.waterParticles.render(ctx, viewport);
+    this.bubbles.render(ctx, viewport);
+    
     const startX = Math.max(0, Math.floor(vx0 / grid) * grid);
     const endX = Math.min(this.world.width, Math.ceil(vx1 / grid) * grid);
     const startY = Math.max(0, Math.floor(vy0 / grid) * grid);
@@ -217,15 +223,23 @@ export default class Game {
     }
     ctx.stroke();
 
-    // 渲染生物与玩家（世界坐标）
-    for (const c of this.creatures) c.render(ctx);
+    // 渲染生物与玩家（世界坐标，裁剪屏幕外）
+    for (const c of this.creatures) {
+      const inView = (c.x + c.radius >= vx0 && c.x - c.radius <= vx1 && c.y + c.radius >= vy0 && c.y - c.radius <= vy1);
+      if (!inView) continue;
+      c.render(ctx);
+    }
     ctx.save();
     ctx.shadowColor = '#ffd700';
     ctx.shadowBlur = 12;
     this.player.render(ctx);
     ctx.restore();
-    // 渲染浮动文本（世界坐标）
-    for (const ft of this.fxTexts) ft.render(ctx);
+    // 渲染浮动文本（世界坐标，裁剪屏幕外）
+    for (const ft of this.fxTexts) {
+      const inView = (ft.x >= vx0 && ft.x <= vx1 && ft.y >= vy0 && ft.y <= vy1);
+      if (!inView) continue;
+      ft.render(ctx);
+    }
     ctx.restore(); // 退出世界坐标，回到屏幕坐标
 
     // HUD（屏幕坐标，响应式字体）
