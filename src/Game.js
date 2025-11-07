@@ -8,16 +8,18 @@ export default class Game {
   constructor(canvas, ctx) {
     this.canvas = canvas;
     this.ctx = ctx;
-    this.bounds = { width: canvas.width, height: canvas.height };
+    this.screen = { width: canvas.width, height: canvas.height };
+    this.world = { width: 2400, height: 1800 };
     this.input = new Input();
-    this.player = new Player(this.bounds.width / 2, this.bounds.height / 2);
+    this.player = new Player(this.world.width / 2, this.world.height / 2);
+    this.camera = { x: this.player.x, y: this.player.y };
     this.creatures = [];
     this.spawnInitial();
     this.spawnCooldown = 0;
   }
   resize() {
-    this.bounds.width = this.canvas.width;
-    this.bounds.height = this.canvas.height;
+    this.screen.width = this.canvas.width;
+    this.screen.height = this.canvas.height;
   }
   spawnInitial() {
     for (let i = 0; i < 15; i++) this.spawnCreature();
@@ -26,15 +28,20 @@ export default class Game {
     const level = pickSpawnLevel(this.player.level);
     const speciesId = pickSpeciesByLevel(level);
     const spec = species.find(s => s.id === speciesId) || null;
-    const x = Math.random() * this.bounds.width;
-    const y = Math.random() * this.bounds.height;
+    const x = Math.random() * this.world.width;
+    const y = Math.random() * this.world.height;
     const c = new Creature(x, y, level, null, spec);
     this.creatures.push(c);
   }
   update(dt) {
     this.resize();
-    this.player.update(dt, this.bounds, this.input);
-    for (const c of this.creatures) c.update(dt, this.bounds);
+    this.player.update(dt, this.world, this.input);
+    for (const c of this.creatures) c.update(dt, this.world);
+    // 更新摄像机跟随与边界限制
+    const halfW = this.screen.width / 2;
+    const halfH = this.screen.height / 2;
+    this.camera.x = Math.max(halfW, Math.min(this.world.width - halfW, this.player.x));
+    this.camera.y = Math.max(halfH, Math.min(this.world.height - halfH, this.player.y));
     this.handleCollisions();
     // 定时生成新生物
     this.spawnCooldown -= dt;
@@ -69,20 +76,50 @@ export default class Game {
   }
   render() {
     const ctx = this.ctx;
-    ctx.clearRect(0, 0, this.bounds.width, this.bounds.height);
-    // 背景
-    ctx.fillStyle = '#0f1225';
-    ctx.fillRect(0, 0, this.bounds.width, this.bounds.height);
+    // 清屏
+    ctx.clearRect(0, 0, this.screen.width, this.screen.height);
 
+    const halfW = this.screen.width / 2;
+    const halfH = this.screen.height / 2;
+    // 世界坐标渲染：平移到摄像机视野
+    ctx.save();
+    ctx.translate(-this.camera.x + halfW, -this.camera.y + halfH);
+
+    // 世界背景（深色底 + 网格）
+    ctx.fillStyle = '#0c1022';
+    ctx.fillRect(0, 0, this.world.width, this.world.height);
+    const grid = 120;
+    const vx0 = this.camera.x - halfW;
+    const vy0 = this.camera.y - halfH;
+    const vx1 = this.camera.x + halfW;
+    const vy1 = this.camera.y + halfH;
+    const startX = Math.max(0, Math.floor(vx0 / grid) * grid);
+    const endX = Math.min(this.world.width, Math.ceil(vx1 / grid) * grid);
+    const startY = Math.max(0, Math.floor(vy0 / grid) * grid);
+    const endY = Math.min(this.world.height, Math.ceil(vy1 / grid) * grid);
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = startX; x <= endX; x += grid) {
+      ctx.moveTo(x, startY);
+      ctx.lineTo(x, endY);
+    }
+    for (let y = startY; y <= endY; y += grid) {
+      ctx.moveTo(startX, y);
+      ctx.lineTo(endX, y);
+    }
+    ctx.stroke();
+
+    // 渲染生物与玩家（世界坐标）
     for (const c of this.creatures) c.render(ctx);
-    // 玩家加一点高光
     ctx.save();
     ctx.shadowColor = '#ffd700';
     ctx.shadowBlur = 12;
     this.player.render(ctx);
     ctx.restore();
+    ctx.restore(); // 退出世界坐标，回到屏幕坐标
 
-    // HUD
+    // HUD（屏幕坐标）
     ctx.fillStyle = '#ffffff';
     ctx.font = '16px system-ui';
     const hud = `等级 ${this.player.level}  经验 ${this.player.exp}/${this.player.expToNext}  生物:${this.creatures.length}`;
