@@ -1,10 +1,27 @@
 export const progression = {
   baseExp: 3,
   growth: 1.25,
+  // 全局倍增系数：提高升级所需经验。可根据需要调整。
+  expMultiplier: 3,
+  // 分段倍增：到达某等级后继续提高曲线（可选）。
+  // 示例：到达10级后×1.2、到达20级后×1.4。
+  tierMultipliers: [
+    // { level: 10, multiplier: 1.2 },
+    // { level: 20, multiplier: 1.4 },
+  ],
 };
 
 export function expToNext(level, base = progression.baseExp, growth = progression.growth) {
-  return Math.floor(base * Math.pow(growth, Math.max(0, level - 1)));
+  const baseCurve = base * Math.pow(growth, Math.max(0, level - 1));
+  let mul = progression.expMultiplier || 1;
+  if (Array.isArray(progression.tierMultipliers)) {
+    for (const t of progression.tierMultipliers) {
+      if (t && typeof t.level === 'number' && typeof t.multiplier === 'number' && level >= t.level) {
+        mul *= t.multiplier;
+      }
+    }
+  }
+  return Math.floor(baseCurve * mul);
 }
 
 // 吞噬经验配置：可在运行时调整
@@ -23,7 +40,7 @@ export function computeDevourExp(playerLevel, targetLevel) {
 // 接触强者经验扣减配置
 export const contactPenalty = {
   base: 1,           // 基础扣减
-  perLevelDiff: 1,   // 每级差额外扣减（仅当目标等级高于玩家）
+  perLevelDiff: 3,   // 每级差额外扣减（仅当目标等级高于玩家）
   cooldownSec: 0.6,  // 扣减冷却，避免持续碰撞秒光经验
 };
 
