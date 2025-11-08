@@ -47,6 +47,9 @@ export default class Chest {
     player.gainExp(chestConfig.expReward);
     player.speedBoostMultiplier = chestConfig.speedBoostMultiplier;
     player.speedBoostTimer = chestConfig.speedBoostDuration;
+    if (typeof chestConfig.ammoReward === 'number') {
+      player.dartAmmo = (player.dartAmmo || 0) + chestConfig.ammoReward;
+    }
     this.state = 'open';
   }
 }

@@ -1,6 +1,7 @@
 import Creature from './Creature.js';
 import { progression, expToNext } from './config/progression.js';
 import { getFormForLevel } from './config/evolution.js';
+import { combatConfig } from './config/combat.js';
 import { drawFish, drawFishGoby, drawFishPerch } from './Renderer.js';
 
 export default class Player extends Creature {
@@ -21,10 +22,18 @@ export default class Player extends Creature {
     this.pendingEvolutionForm = null;
     this.speedBoostTimer = 0;
     this.speedBoostMultiplier = 1.0;
+    this.boostUses = combatConfig.boost.baseUsesOnStart;
+    this.boostActiveTimer = 0;
+    this.boostMultiplier = combatConfig.boost.multiplier;
+    this.dartAmmo = combatConfig.darts.baseAmmoOnStart;
+    this.fireCooldown = 0;
   }
   update(dt, bounds, input) {
     const axis = input.getAxis();
-    const boostMul = this.speedBoostTimer > 0 ? this.speedBoostMultiplier : 1.0;
+    // 计算两种加速来源：宝箱加速与主动加速，取更大值
+    const chestBoost = this.speedBoostTimer > 0 ? this.speedBoostMultiplier : 1.0;
+    const activeBoost = this.boostActiveTimer > 0 ? this.boostMultiplier : 1.0;
+    const boostMul = Math.max(chestBoost, activeBoost);
     this.vx = axis.x * this.speed * boostMul;
     this.vy = axis.y * this.speed * boostMul;
     this.x += this.vx * dt;
@@ -36,6 +45,7 @@ export default class Player extends Creature {
     this.animTime += dt;
     this.contactPenaltyCooldown = Math.max(0, this.contactPenaltyCooldown - dt);
     if (this.speedBoostTimer > 0) this.speedBoostTimer = Math.max(0, this.speedBoostTimer - dt);
+    if (this.boostActiveTimer > 0) this.boostActiveTimer = Math.max(0, this.boostActiveTimer - dt);
     if (this.devourTimer > 0) {
       this.devourTimer -= dt;
       this.state = 'devour';
@@ -58,6 +68,9 @@ export default class Player extends Creature {
       if (upForm && (upForm.shape !== this.shape || upForm.color !== this.color)) {
         this.pendingEvolutionForm = upForm;
       }
+      // 等级增量：加速使用次数与飞镖弹药
+      this.boostUses += (combatConfig.boost.addUsesPerLevel(this.level) || 0);
+      this.dartAmmo += (combatConfig.darts.addAmmoPerLevel(this.level) || 0);
     }
     // 掉级：当经验小于0且等级>1，向下回退，并携带欠缺经验
     while (this.exp < 0 && this.level > 1) {

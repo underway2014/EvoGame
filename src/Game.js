@@ -13,6 +13,8 @@ import WaterParticles from './WaterParticles.js';
 import Chest from './Chest.js';
 import { chestConfig } from './config/chest.js';
 import { showChestOverlay } from './ui/ChestOverlay.js';
+import Dart from './Dart.js';
+import { combatConfig } from './config/combat.js';
 
 export default class Game {
   constructor(canvas, ctx) {
@@ -38,6 +40,8 @@ export default class Game {
     this.waterParticles = new WaterParticles(this.world, 140);
     this.chests = [];
     this.chestSpawnCooldown = 0;
+    this.darts = [];
+    this.updateActionButtons();
   }
   resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -76,6 +80,7 @@ export default class Game {
     this.elapsed += dt;
 
     this.player.update(dt, this.world, this.input);
+    this.updateActionButtons();
     const halfW = this.screen.width / 2;
     const halfH = this.screen.height / 2;
     const viewport = {
@@ -93,6 +98,14 @@ export default class Game {
     this.maybeTriggerGameOver();
     this.bubbles.update(dt);
     this.waterParticles.update(dt);
+    // 更新飞镖
+    for (let i = this.darts.length - 1; i >= 0; i--) {
+      const d = this.darts[i];
+      d.update(dt);
+      if (d.isDead(this.world)) this.darts.splice(i, 1);
+    }
+    // 玩家操作：加速与发射
+    this.handlePlayerActions();
     // 宝箱生成
     this.chestSpawnCooldown -= dt;
     if (!this.paused && !this.gameOver && this.chestSpawnCooldown <= 0) {
@@ -131,6 +144,46 @@ export default class Game {
         }
       }
     }
+  }
+  updateActionButtons() {
+    const boostEl = document.getElementById('boostCount');
+    const dartEl = document.getElementById('dartCount');
+    if (boostEl) boostEl.textContent = String(this.player.boostUses || 0);
+    if (dartEl) dartEl.textContent = String(this.player.dartAmmo || 0);
+  }
+  handlePlayerActions() {
+    // 加速（Shift/Space）
+    if (this.input.consumePress('ShiftLeft') || this.input.consumePress('Space')) {
+      this.useBoost();
+    }
+    // 飞镖（KeyE）
+    if (this.input.consumePress('KeyE')) {
+      this.fireDart();
+    }
+    // 冷却递减（按dt）
+    if (this.player.fireCooldown && this.player.fireCooldown > 0) this.player.fireCooldown = Math.max(0, this.player.fireCooldown - (1 / 60));
+  }
+  useBoost() {
+    if (this.player.boostUses > 0 && (!this.player.boostActiveTimer || this.player.boostActiveTimer <= 0)) {
+      this.player.boostActiveTimer = combatConfig.boost.durationSec;
+      this.player.boostMultiplier = combatConfig.boost.multiplier;
+      this.player.boostUses -= 1;
+      this.updateActionButtons();
+      return true;
+    }
+    return false;
+  }
+  fireDart() {
+    if ((this.player.dartAmmo || 0) > 0 && (this.player.fireCooldown || 0) <= 0) {
+      const angle = Math.atan2(this.player.vy, this.player.vx) || 0;
+      const d = new Dart(this.player.x, this.player.y, angle, combatConfig.darts.speed, combatConfig.darts.lifetimeSec, combatConfig.darts.radius);
+      this.darts.push(d);
+      this.player.dartAmmo -= 1;
+      this.player.fireCooldown = combatConfig.darts.fireCooldownSec;
+      this.updateActionButtons();
+      return true;
+    }
+    return false;
   }
   maybeTriggerEvolution() {
     const form = this.player.pendingEvolutionForm;
@@ -179,6 +232,26 @@ export default class Game {
               this.addLevelDownText(this.player.level);
             }
           }
+        }
+      }
+    }
+    // 飞镖与生物碰撞
+    for (let di = this.darts.length - 1; di >= 0; di--) {
+      const d = this.darts[di];
+      for (let ci = this.creatures.length - 1; ci >= 0; ci--) {
+        const c = this.creatures[ci];
+        const dx = c.x - d.x;
+        const dy = c.y - d.y;
+        const dist = Math.hypot(dx, dy);
+        if (dist < c.radius + d.radius) {
+          // 命中移除生物并给予经验
+          this.creatures.splice(ci, 1);
+          const gained = combatConfig.darts.expOnHit(this.player.level, c.level);
+          this.player.gainExp(gained);
+          this.addExpText(gained);
+          // 移除飞镖
+          this.darts.splice(di, 1);
+          break;
         }
       }
     }
@@ -268,6 +341,14 @@ export default class Game {
       if (!inView) continue;
       c.render(ctx);
     }
+    // 渲染飞镖
+    for (let i = this.darts.length - 1; i >= 0; i--) {
+      const d = this.darts[i];
+      if (d.isDead(this.world)) { this.darts.splice(i, 1); continue; }
+      const inViewD = (d.x + d.radius >= vx0 && d.x - d.radius <= vx1 && d.y + d.radius >= vy0 && d.y - d.radius <= vy1);
+      if (!inViewD) continue;
+      d.render(ctx);
+    }
     ctx.save();
     ctx.shadowColor = '#ffd700';
     ctx.shadowBlur = 12;
@@ -289,7 +370,9 @@ export default class Game {
     const mm = String(Math.floor(this.elapsed / 60)).padStart(2, '0');
     const ss = String(Math.floor(this.elapsed % 60)).padStart(2, '0');
     const hud = `等级 ${this.player.level}  经验 ${Math.max(0, this.player.exp)}/${this.player.expToNext}  生物:${this.creatures.length}  吞噬:${this.devouredCount}  时间:${mm}:${ss}`;
+    const hud2 = `加速:${this.player.boostUses}  飞镖:${this.player.dartAmmo}`;
     ctx.fillText(hud, 12, 22);
+    ctx.fillText(hud2, 12, 42);
     const barW = 160, barH = 8;
     ctx.strokeStyle = '#aaa';
     ctx.strokeRect(12, 28, barW, barH);

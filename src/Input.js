@@ -3,9 +3,11 @@ import TouchJoystick from './TouchJoystick.js';
 export default class Input {
   constructor() {
     this.keys = new Set();
+    this.pressed = new Set();
     this.joystick = null;
     window.addEventListener('keydown', (e) => {
       this.keys.add(e.code);
+      this.pressed.add(e.code);
     });
     window.addEventListener('keyup', (e) => {
       this.keys.delete(e.code);
@@ -20,6 +22,13 @@ export default class Input {
   }
   isDown(code) {
     return this.keys.has(code);
+  }
+  consumePress(code) {
+    if (this.pressed.has(code)) {
+      this.pressed.delete(code);
+      return true;
+    }
+    return false;
   }
   getAxis() {
     let x = 0, y = 0;

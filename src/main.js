@@ -15,6 +15,19 @@ window.addEventListener('resize', resize);
 resize();
 
 const game = new Game(canvas, ctx);
+// 绑定按钮事件（移动端/桌面）
+const btnBoost = document.getElementById('btnBoost');
+const btnDart = document.getElementById('btnDart');
+if (btnBoost) {
+  btnBoost.addEventListener('click', () => {
+    game.useBoost();
+  });
+}
+if (btnDart) {
+  btnDart.addEventListener('click', () => {
+    game.fireDart();
+  });
+}
 
 let last = performance.now();
 function loop(now) {

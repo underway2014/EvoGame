@@ -1,8 +1,8 @@
 export const progression = {
-  baseExp: 3,
+  baseExp: 2,
   growth: 1.25,
   // 全局倍增系数：提高升级所需经验。可根据需要调整。
-  expMultiplier: 3,
+  expMultiplier: 2,
   // 分段倍增：到达某等级后继续提高曲线（可选）。
   // 示例：到达10级后×1.2、到达20级后×1.4。
   tierMultipliers: [
