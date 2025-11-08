@@ -244,12 +244,27 @@ export default class Game {
         const dy = c.y - d.y;
         const dist = Math.hypot(dx, dy);
         if (dist < c.radius + d.radius) {
-          // 命中移除生物并给予经验
-          this.creatures.splice(ci, 1);
-          const gained = combatConfig.darts.expOnHit(this.player.level, c.level);
-          this.player.gainExp(gained);
-          this.addExpText(gained);
-          // 移除飞镖
+          // 等级差消耗规则
+          const levelDiff = Math.max(0, c.level - this.player.level);
+          let requiredAmmo = 0;
+          if (levelDiff > 0) {
+            requiredAmmo = Math.ceil(levelDiff * (combatConfig.darts.levelDiffCostFactor || 1));
+          }
+          if ((this.player.dartAmmo || 0) >= requiredAmmo) {
+            // 消耗额外弹药并命中
+            this.player.dartAmmo -= requiredAmmo;
+            this.updateActionButtons();
+            this.creatures.splice(ci, 1);
+            const gained = combatConfig.darts.expOnHit(this.player.level, c.level);
+            this.player.gainExp(gained);
+            this.addExpText(gained);
+          } else {
+            // 弹药不足，反馈提示
+            const missing = requiredAmmo - (this.player.dartAmmo || 0);
+            const text = `需要飞镖:${requiredAmmo}`;
+            this.fxTexts.push(new FloatingText(this.player.x, this.player.y - this.player.radius - 18, text, '#ff5252'));
+          }
+          // 命中后移除该飞镖
           this.darts.splice(di, 1);
           break;
         }

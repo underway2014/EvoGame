@@ -1,6 +1,6 @@
 export const combatConfig = {
   boost: {
-    durationSec: 2.0,
+    durationSec: 3.0,
     multiplier: 1.8,
     baseUsesOnStart: 2,
     addUsesPerLevel: (level) => (level % 3 === 0 ? 2 : 0), // 每5级+1次
@@ -13,5 +13,6 @@ export const combatConfig = {
     radius: 4,
     fireCooldownSec: 0.25,
     expOnHit: (playerLevel, targetLevel) => 1, // 命中经验（可改为computeDevourExp）
+    levelDiffCostFactor: 2,
   },
 };
