@@ -1,10 +1,10 @@
 import { species } from './species.js';
 
 export const spawnRules = {
-  maxCreatures: 30,
-  biasAroundPlayerLevel: { min: -1, max: 2 },
-  spawnIntervalSec: 0.5,
-  aggressiveRatioTarget: 0.5,
+  maxCreatures: 40,
+  biasAroundPlayerLevel: { min: -1, max: 4 },
+  spawnIntervalSec: 3,
+  aggressiveRatioTarget: 0.6,
 };
 
 function clampLevel(level) { return Math.max(1, level); }

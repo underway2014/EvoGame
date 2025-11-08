@@ -27,6 +27,7 @@ export default class Player extends Creature {
     this.boostMultiplier = combatConfig.boost.multiplier;
     this.dartAmmo = combatConfig.darts.baseAmmoOnStart;
     this.fireCooldown = 0;
+    this.facingAngle = 0; // 维持最近一次移动方向
   }
   update(dt, bounds, input) {
     const axis = input.getAxis();
@@ -46,6 +47,11 @@ export default class Player extends Creature {
     this.contactPenaltyCooldown = Math.max(0, this.contactPenaltyCooldown - dt);
     if (this.speedBoostTimer > 0) this.speedBoostTimer = Math.max(0, this.speedBoostTimer - dt);
     if (this.boostActiveTimer > 0) this.boostActiveTimer = Math.max(0, this.boostActiveTimer - dt);
+    // 更新面朝方向：仅在有明显移动时刷新方向，否则保持原方向
+    const speedMag = Math.hypot(this.vx, this.vy);
+    if (speedMag > 5) {
+      this.facingAngle = Math.atan2(this.vy, this.vx);
+    }
     if (this.devourTimer > 0) {
       this.devourTimer -= dt;
       this.state = 'devour';
@@ -99,7 +105,7 @@ export default class Player extends Creature {
     this.devourTimer = 0.25; // 吞噬动画时长
   }
   render(ctx) {
-    const angle = Math.atan2(this.vy, this.vx) || 0;
+    const angle = this.facingAngle || 0;
     // 使用形态对应的鱼类渲染
     if (this.shape === 'fish_goby') {
       drawFishGoby(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: this.animTime });

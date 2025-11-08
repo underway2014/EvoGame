@@ -3,25 +3,31 @@ export default class TouchJoystick {
     this.container = container;
     this.stick = stick;
     this.active = false;
+    this.pointerId = null;
     this.origin = { x: 0, y: 0 };
     this.axis = { x: 0, y: 0 };
     this.max = Math.min(container.clientWidth, container.clientHeight) * 0.5;
     this._onDown = this.onDown.bind(this);
     this._onMove = this.onMove.bind(this);
     this._onUp = this.onUp.bind(this);
-    container.addEventListener('pointerdown', this._onDown);
-    window.addEventListener('pointermove', this._onMove);
-    window.addEventListener('pointerup', this._onUp);
+    container.addEventListener('pointerdown', this._onDown, { passive: false });
+    window.addEventListener('pointermove', this._onMove, { passive: false });
+    window.addEventListener('pointerup', this._onUp, { passive: false });
+    window.addEventListener('pointercancel', this._onUp, { passive: false });
   }
   onDown(e) {
+    e.preventDefault();
     const rect = this.container.getBoundingClientRect();
     this.active = true;
+    this.pointerId = e.pointerId;
+    try { this.container.setPointerCapture && this.container.setPointerCapture(e.pointerId); } catch {}
     this.origin.x = e.clientX - rect.left;
     this.origin.y = e.clientY - rect.top;
     this.updateStick(this.origin.x, this.origin.y);
   }
   onMove(e) {
-    if (!this.active) return;
+    if (!this.active || e.pointerId !== this.pointerId) return;
+    e.preventDefault();
     const rect = this.container.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -37,8 +43,11 @@ export default class TouchJoystick {
     this.axis.x = nx;
     this.axis.y = ny;
   }
-  onUp() {
+  onUp(e) {
+    if (!this.active) return;
+    if (e && this.pointerId !== null && e.pointerId !== this.pointerId) return;
     this.active = false;
+    this.pointerId = null;
     this.axis.x = 0; this.axis.y = 0;
     this.updateStick(this.container.clientWidth / 2, this.container.clientHeight / 2);
   }

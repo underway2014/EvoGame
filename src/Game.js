@@ -175,7 +175,7 @@ export default class Game {
   }
   fireDart() {
     if ((this.player.dartAmmo || 0) > 0 && (this.player.fireCooldown || 0) <= 0) {
-      const angle = Math.atan2(this.player.vy, this.player.vx) || 0;
+      const angle = (this.player.facingAngle || 0);
       const d = new Dart(this.player.x, this.player.y, angle, combatConfig.darts.speed, combatConfig.darts.lifetimeSec, combatConfig.darts.radius);
       this.darts.push(d);
       this.player.dartAmmo -= 1;

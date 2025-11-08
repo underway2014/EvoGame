@@ -6,8 +6,9 @@ html, body { margin: 0; height: 100%; background: #0f1225; overflow: hidden; }
 #joystick { position: absolute; left: calc(28px + env(safe-area-inset-left)); bottom: calc(28px + env(safe-area-inset-bottom)); width: clamp(90px, 18vw, 140px); height: clamp(90px, 18vw, 140px); border-radius: 50%; background: rgba(255,255,255,0.05); box-shadow: 0 0 0 2px rgba(255,255,255,0.08) inset; pointer-events: auto; touch-action: none; backdrop-filter: blur(4px); }
 #stick { position: absolute; left: 50%; top: 50%; width: 42%; height: 42%; transform: translate(-50%, -50%); border-radius: 50%; background: rgba(255,255,255,0.18); box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
-#actionButtons { position: absolute; right: calc(28px + env(safe-area-inset-right)); bottom: calc(28px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; pointer-events: auto; }
+#actionButtons { position: absolute; right: calc(28px + env(safe-area-inset-right)); bottom: calc(28px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 14px; pointer-events: auto; z-index: 20; }
 .round-btn { position: relative; width: clamp(64px, 14vw, 96px); height: clamp(64px, 14vw, 96px); border-radius: 50%; border: none; cursor: pointer; background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), rgba(255,255,255,0.05)); box-shadow: 0 6px 16px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,255,255,0.15); color: #fff; font: 600 14px system-ui; backdrop-filter: blur(4px); }
+.round-btn { touch-action: none; }
 .round-btn:active { transform: scale(0.98); box-shadow: 0 4px 12px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,255,255,0.25); }
 .round-btn span { position: absolute; left: 50%; transform: translateX(-50%); }
 #boostLabel, #dartLabel { top: 22%; opacity: 0.9; font-size: 12px; }

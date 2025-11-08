@@ -39,7 +39,7 @@ export function computeDevourExp(playerLevel, targetLevel) {
 
 // 接触强者经验扣减配置
 export const contactPenalty = {
-  base: 1,           // 基础扣减
+  base: 2,           // 基础扣减
   perLevelDiff: 3,   // 每级差额外扣减（仅当目标等级高于玩家）
   cooldownSec: 0.6,  // 扣减冷却，避免持续碰撞秒光经验
 };

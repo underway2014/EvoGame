@@ -19,14 +19,14 @@ const game = new Game(canvas, ctx);
 const btnBoost = document.getElementById('btnBoost');
 const btnDart = document.getElementById('btnDart');
 if (btnBoost) {
-  btnBoost.addEventListener('click', () => {
-    game.useBoost();
-  });
+  const onBoost = (e) => { e.preventDefault(); game.useBoost(); };
+  btnBoost.addEventListener('pointerdown', onBoost, { passive: false });
+  btnBoost.addEventListener('click', onBoost);
 }
 if (btnDart) {
-  btnDart.addEventListener('click', () => {
-    game.fireDart();
-  });
+  const onDart = (e) => { e.preventDefault(); game.fireDart(); };
+  btnDart.addEventListener('pointerdown', onDart, { passive: false });
+  btnDart.addEventListener('click', onDart);
 }
 
 let last = performance.now();
