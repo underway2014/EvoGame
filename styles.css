@@ -13,6 +13,10 @@ html, body { margin: 0; height: 100%; background: #0f1225; overflow: hidden; }
 .round-btn span { position: absolute; left: 50%; transform: translateX(-50%); }
 #boostLabel, #dartLabel { top: 22%; opacity: 0.9; font-size: 12px; }
 #boostCount, #dartCount { bottom: 18%; font-size: 18px; font-weight: 700; }
+/* 顶部音乐按钮 */
+#topButtons { position: absolute; right: calc(16px + env(safe-area-inset-right)); top: calc(16px + env(safe-area-inset-top)); pointer-events: auto; z-index: 20; }
+.round-btn.small { width: clamp(44px, 10vw, 60px); height: clamp(44px, 10vw, 60px); font-size: 12px; }
+.round-btn.on { box-shadow: 0 6px 16px rgba(0,128,255,0.45), inset 0 0 0 2px rgba(0,128,255,0.35); }
 
 @media (pointer: fine) {
   #joystick { display: none; }

@@ -1,4 +1,6 @@
 import Game from './Game.js';
+import AudioManager from './AudioManager.js';
+import { audioConfig } from './config/audio.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
@@ -15,6 +17,7 @@ window.addEventListener('resize', resize);
 resize();
 
 const game = new Game(canvas, ctx);
+const audio = new AudioManager();
 // 绑定按钮事件（移动端/桌面）
 const btnBoost = document.getElementById('btnBoost');
 const btnDart = document.getElementById('btnDart');
@@ -38,3 +41,19 @@ function loop(now) {
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
+
+// 音乐按钮绑定（移动端需要用户手势启用音频）
+const btnMusic = document.getElementById('btnMusic');
+const bgAudio = document.getElementById('bgAudio');
+if (btnMusic) {
+  const toggleMusic = async (e) => {
+    e.preventDefault();
+    if (!audio.running) { await audio.start(bgAudio); btnMusic.classList.add('on'); }
+    else { audio.stop(); btnMusic.classList.remove('on'); }
+  };
+  btnMusic.addEventListener('pointerdown', toggleMusic, { passive: false });
+  btnMusic.addEventListener('click', toggleMusic);
+}
+// 任意首次指针交互时尝试启动音乐（若用户允许）
+const bootAudioOnce = async (e) => { if (!audio.running) { try { await audio.start(bgAudio); btnMusic && btnMusic.classList.add('on'); } catch {} } window.removeEventListener('pointerdown', bootAudioOnce); };
+window.addEventListener('pointerdown', bootAudioOnce, { once: true });

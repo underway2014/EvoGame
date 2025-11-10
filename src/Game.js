@@ -385,9 +385,9 @@ export default class Game {
     const mm = String(Math.floor(this.elapsed / 60)).padStart(2, '0');
     const ss = String(Math.floor(this.elapsed % 60)).padStart(2, '0');
     const hud = `等级 ${this.player.level}  经验 ${Math.max(0, this.player.exp)}/${this.player.expToNext}  生物:${this.creatures.length}  吞噬:${this.devouredCount}  时间:${mm}:${ss}`;
-    const hud2 = `加速:${this.player.boostUses}  飞镖:${this.player.dartAmmo}`;
+    // const hud2 = `加速:${this.player.boostUses}  飞镖:${this.player.dartAmmo}`;
     ctx.fillText(hud, 12, 22);
-    ctx.fillText(hud2, 12, 42);
+    // ctx.fillText(hud2, 12, 42);
     const barW = 160, barH = 8;
     ctx.strokeStyle = '#aaa';
     ctx.strokeRect(12, 28, barW, barH);
