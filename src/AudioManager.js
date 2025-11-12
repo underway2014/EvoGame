@@ -52,14 +52,14 @@ export default class AudioManager {
   }
   async start(audioEl = null) {
     this.init();
-    if (!this.ctx || this.running) return;
+    if (!this.ctx || this.running) return false;
     if (this.ctx.state === 'suspended') { try { this.ctx.resume(); } catch {} }
     this.audioEl = audioEl || this.audioEl || document.getElementById('bgAudio');
     // 若提供mp3地址，优先使用文件播放；否则用WebAudio流
     if (this.audioEl) {
       if (audioConfig.bgmUrl && this.audioEl.src !== audioConfig.bgmUrl) {
         this.audioEl.src = audioConfig.bgmUrl;
-        try { await this.audioEl.play(); } catch {}
+        try { await this.audioEl.play(); this.running = true; return true; } catch { this.running = false; return false; }
       } else {
         // 构建WebAudio并将master输出到MediaStreamDestination
         this.buildGraph();
@@ -72,14 +72,16 @@ export default class AudioManager {
           this.audioEl.srcObject = this.destination.stream;
         }
         try { await this.audioEl.play(); } catch {}
+        this.running = true; return true;
       }
     } else {
       // 无audio元素时，直接走WebAudio（某些环境可行）
       this.buildGraph();
       for (const n of this.nodes) { if (n.start) try { n.start(); } catch {} }
       this.ping(440, 0.15, 0.2);
+      this.running = true; return true;
     }
-    this.running = true;
+    this.running = true; return true;
   }
   stop() {
     if (!this.ctx || !this.running) return;

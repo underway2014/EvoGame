@@ -46,8 +46,16 @@
       </button>
     </div>
     <div id="topButtons" aria-label="top-actions">
-      <button id="btnMusic" class="round-btn small" title="音乐">音</button>
+      <button id="btnPause" class="round-btn small" title="暂停/继续" aria-label="toggle-pause" aria-pressed="false">⏸️</button>
+      <button id="btnSound" class="round-btn small sound-btn muted" title="音乐开关" aria-label="toggle-sound" aria-pressed="false">🔇</button>
       <audio id="bgAudio" preload="none" loop></audio>
+    </div>
+  </div>
+  <div id="pauseOverlay" class="overlay hidden" aria-modal="true" role="dialog">
+    <div class="panel">
+      <h2>已暂停</h2>
+      <div id="pauseStats"></div>
+      <button id="pauseResume">继续</button>
     </div>
   </div>
   <script type="module" src="./src/main.js"></script>

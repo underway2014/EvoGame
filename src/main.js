@@ -1,4 +1,5 @@
 import Game from './Game.js';
+import { showPauseOverlay } from './ui/PauseOverlay.js';
 import AudioManager from './AudioManager.js';
 import { audioConfig } from './config/audio.js';
 
@@ -42,18 +43,88 @@ function loop(now) {
 }
 requestAnimationFrame(loop);
 
-// 音乐按钮绑定（移动端需要用户手势启用音频）
-const btnMusic = document.getElementById('btnMusic');
+// 单个声音切换按钮（移动端需要用户手势启用音频）
+const btnSound = document.getElementById('btnSound');
 const bgAudio = document.getElementById('bgAudio');
-if (btnMusic) {
-  const toggleMusic = async (e) => {
-    e.preventDefault();
-    if (!audio.running) { await audio.start(bgAudio); btnMusic.classList.add('on'); }
-    else { audio.stop(); btnMusic.classList.remove('on'); }
-  };
-  btnMusic.addEventListener('pointerdown', toggleMusic, { passive: false });
-  btnMusic.addEventListener('click', toggleMusic);
+const btnPause = document.getElementById('btnPause');
+
+const toggleSound = async (e) => {
+  if (e) e.preventDefault();
+  if (!audio.running) {
+    const ok = await audio.start(bgAudio);
+    if (ok && btnSound) {
+      btnSound.classList.add('on');
+      btnSound.classList.remove('muted');
+      btnSound.setAttribute('aria-pressed', 'true');
+      btnSound.textContent = '🔊';
+    }
+  } else {
+    audio.stop();
+    if (btnSound) {
+      btnSound.classList.remove('on');
+      btnSound.classList.add('muted');
+      btnSound.setAttribute('aria-pressed', 'false');
+      btnSound.textContent = '🔇';
+    }
+  }
+};
+
+if (btnSound) {
+  // 仅使用 click，避免 pointerdown+click 的双触发导致状态来回切换
+  btnSound.addEventListener('click', toggleSound, { passive: false });
 }
+
+const updatePauseBtn = (paused) => {
+  if (!btnPause) return;
+  if (paused) {
+    btnPause.classList.add('on');
+    btnPause.setAttribute('aria-pressed', 'true');
+    btnPause.textContent = '▶️';
+  } else {
+    btnPause.classList.remove('on');
+    btnPause.setAttribute('aria-pressed', 'false');
+    btnPause.textContent = '⏸️';
+  }
+};
+
+if (btnPause) {
+  btnPause.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (!game.paused && !game.gameOver) {
+      game.paused = true;
+      updatePauseBtn(true);
+      const stats = { devoured: game.devouredCount, time: game.elapsed, level: game.player.level };
+      showPauseOverlay(stats, () => {
+        game.paused = false;
+        updatePauseBtn(false);
+      });
+    } else if (game.paused && !game.gameOver) {
+      game.paused = false;
+      updatePauseBtn(false);
+      const overlay = document.getElementById('pauseOverlay');
+      if (overlay) overlay.classList.add('hidden');
+    }
+  });
+}
+
 // 任意首次指针交互时尝试启动音乐（若用户允许）
-const bootAudioOnce = async (e) => { if (!audio.running) { try { await audio.start(bgAudio); btnMusic && btnMusic.classList.add('on'); } catch {} } window.removeEventListener('pointerdown', bootAudioOnce); };
+const bootAudioOnce = async (e) => {
+  // 若首次交互来源于声音按钮，则不自动启动，避免与点击逻辑冲突
+  if (e && btnSound && (e.target === btnSound || btnSound.contains(e.target))) {
+    window.removeEventListener('pointerdown', bootAudioOnce);
+    return;
+  }
+  if (!audio.running) {
+    try {
+      const ok = await audio.start(bgAudio);
+      if (ok && btnSound) {
+        btnSound.classList.add('on');
+        btnSound.classList.remove('muted');
+        btnSound.setAttribute('aria-pressed', 'true');
+        btnSound.textContent = '🔊';
+      }
+    } catch {}
+  }
+  window.removeEventListener('pointerdown', bootAudioOnce);
+};
 window.addEventListener('pointerdown', bootAudioOnce, { once: true });

@@ -14,9 +14,13 @@ html, body { margin: 0; height: 100%; background: #0f1225; overflow: hidden; }
 #boostLabel, #dartLabel { top: 22%; opacity: 0.9; font-size: 12px; }
 #boostCount, #dartCount { bottom: 18%; font-size: 18px; font-weight: 700; }
 /* 顶部音乐按钮 */
-#topButtons { position: absolute; right: calc(16px + env(safe-area-inset-right)); top: calc(16px + env(safe-area-inset-top)); pointer-events: auto; z-index: 20; }
+#topButtons { position: absolute; right: calc(16px + env(safe-area-inset-right)); top: calc(16px + env(safe-area-inset-top)); pointer-events: auto; z-index: 20; display: flex; gap: 10px; align-items: center; }
 .round-btn.small { width: clamp(44px, 10vw, 60px); height: clamp(44px, 10vw, 60px); font-size: 12px; }
 .round-btn.on { box-shadow: 0 6px 16px rgba(0,128,255,0.45), inset 0 0 0 2px rgba(0,128,255,0.35); }
+/* 声音按钮美化 */
+.sound-btn { font-size: 18px; display: grid; place-items: center; }
+.sound-btn.muted { box-shadow: 0 6px 16px rgba(255,64,64,0.35), inset 0 0 0 2px rgba(255,64,64,0.25); }
+.sound-btn:focus-visible { outline: 2px solid rgba(0,128,255,0.6); outline-offset: 3px; }
 
 @media (pointer: fine) {
   #joystick { display: none; }
@@ -36,3 +40,6 @@ html, body { margin: 0; height: 100%; background: #0f1225; overflow: hidden; }
 /* 宝箱弹窗 */
 #chestDesc { font: 14px system-ui; opacity: 0.95; margin: 10px 0 14px; }
 #chestOpenBtn { appearance: none; border: none; border-radius: 8px; padding: 10px 16px; font: 600 14px system-ui; color: #0f1225; background: #ffd54f; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer; }
+/* 暂停弹窗 */
+#pauseStats { font: 14px system-ui; opacity: 0.95; margin: 10px 0 14px; }
+#pauseResume { appearance: none; border: none; border-radius: 8px; padding: 10px 16px; font: 600 14px system-ui; color: #0f1225; background: #69f0ae; box-shadow: 0 2px 8px rgba(0,0,0,0.3); cursor: pointer; }
