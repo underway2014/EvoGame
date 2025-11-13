@@ -9,6 +9,7 @@ export default class AudioManager {
     this.volume = audioConfig.volume ?? 0.6;
     this.audioEl = null;
     this.destination = null;
+    this.hitUrl = null;
   }
   init() {
     if (this.ctx) return;
@@ -115,5 +116,55 @@ export default class AudioManager {
     g.gain.exponentialRampToValueAtTime(0.0001, now + durationSec);
     try { osc.start(); } catch {}
     try { osc.stop(now + durationSec); } catch {}
+  }
+
+  async ensureHitMp3() {
+    if (this.hitUrl) return this.hitUrl;
+    this.init();
+    if (!this.ctx) return null;
+    const dest = this.ctx.createMediaStreamDestination();
+    const osc = this.ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = 1050;
+    const g = this.ctx.createGain(); g.gain.value = 0.35;
+    osc.connect(g); g.connect(dest);
+    let mime = 'audio/mpeg';
+    if (!window.MediaRecorder || !MediaRecorder.isTypeSupported || !MediaRecorder.isTypeSupported(mime)) {
+      mime = 'audio/webm';
+    }
+    if (!window.MediaRecorder || !MediaRecorder.isTypeSupported || !MediaRecorder.isTypeSupported(mime)) {
+      try { osc.start(); osc.stop(this.ctx.currentTime + 0.12); } catch {}
+      return null;
+    }
+    const rec = new MediaRecorder(dest.stream, { mimeType: mime, audioBitsPerSecond: 64000 });
+    const chunks = [];
+    rec.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+    const urlP = new Promise((resolve) => {
+      rec.onstop = () => {
+        const blob = new Blob(chunks, { type: mime });
+        const url = URL.createObjectURL(blob);
+        this.hitUrl = url;
+        resolve(url);
+      };
+    });
+    rec.start();
+    try { osc.start(); } catch {}
+    try { osc.stop(this.ctx.currentTime + 0.12); } catch {}
+    setTimeout(() => { try { rec.stop(); } catch {} }, 160);
+    return urlP;
+  }
+
+  async playSfx(url, volume = 0.8) {
+    try {
+      const a = new Audio(url);
+      a.volume = Math.max(0, Math.min(1, volume));
+      await a.play();
+    } catch {}
+  }
+
+  async playHit() {
+    const configured = (typeof audioConfig.hitUrl === 'string' && audioConfig.hitUrl.length > 0) ? audioConfig.hitUrl : null;
+    if (configured) { await this.playSfx(configured, 0.85); return; }
+    const url = await this.ensureHitMp3();
+    if (url) { await this.playSfx(url, 0.85); return; }
+    this.ping(1100, 0.08, 0.25);
   }
 }

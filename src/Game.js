@@ -157,8 +157,8 @@ export default class Game {
     if (this.input.consumePress('ShiftLeft') || this.input.consumePress('Space')) {
       this.useBoost();
     }
-    // 飞镖（KeyE）
-    if (this.input.consumePress('KeyE')) {
+    // 飞镖（KeyJ）
+    if (this.input.consumePress('KeyJ')) {
       this.fireDart();
     }
     // 冷却递减（按dt）
@@ -259,7 +259,7 @@ export default class Game {
             const gained = combatConfig.darts.expOnHit(this.player.level, c.level);
             this.player.gainExp(gained);
             this.addExpText(gained);
-            if (this.audio) this.audio.ping(1100, 0.08, 0.25);
+            if (this.audio) this.audio.playHit();
           } else {
             // 弹药不足，反馈提示
             const missing = requiredAmmo - (this.player.dartAmmo || 0);
