@@ -1,7 +1,12 @@
 export const species = [
   { id: 'micro', baseLevel: 1, radius: 8, speed: 90, behavior: 'wander', color: 'hsl(200,70%,60%)', shape: 'blob', eye: true },
+  { id: 'starfish', baseLevel: 2, radius: 12, speed: 60, behavior: 'wander', color: '#ff8f3d', shape: 'starfish', eye: false },
   { id: 'goby', baseLevel: 2, radius: 12, speed: 95, behavior: 'wander', color: '#c58b4b', shape: 'fish_goby', eye: true },
+  { id: 'shrimp', baseLevel: 3, radius: 10, speed: 100, behavior: 'wander', color: '#f28ea6', shape: 'shrimp', eye: true },
   { id: 'perch', baseLevel: 3, radius: 14, speed: 95, behavior: 'chase', color: '#7aa35a', shape: 'fish_perch', eye: true },
+  { id: 'crab', baseLevel: 3, radius: 13, speed: 80, behavior: 'wander', color: '#d64c4c', shape: 'crab', eye: true },
+  { id: 'jellyfish', baseLevel: 2, radius: 12, speed: 70, behavior: 'wander', color: '#a8c0ff', shape: 'jellyfish', eye: false },
+  { id: 'turtle', baseLevel: 5, radius: 16, speed: 70, behavior: 'wander', color: '#3f7f5a', shape: 'turtle', eye: true },
   { id: 'predator', baseLevel: 4, radius: 18, speed: 110, behavior: 'chase', color: 'hsl(0,70%,60%)', shape: 'tri', eye: false },
   { id: 'bonitoJ', baseLevel: 4, radius: 15, speed: 105, behavior: 'chase', color: '#2a75c7', shape: 'fish_bonito', eye: true },
   { id: 'moray', baseLevel: 5, radius: 16, speed: 90, behavior: 'chase', color: '#3a7a59', shape: 'fish_moray', eye: false },

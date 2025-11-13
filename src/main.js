@@ -17,8 +17,8 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-const game = new Game(canvas, ctx);
 const audio = new AudioManager();
+const game = new Game(canvas, ctx, audio);
 // 绑定按钮事件（移动端/桌面）
 const btnBoost = document.getElementById('btnBoost');
 const btnDart = document.getElementById('btnDart');

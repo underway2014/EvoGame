@@ -381,3 +381,166 @@ export function drawFishShark(ctx, x, y, r, angle = 0, color = '#6c7c8c', opts =
   ctx.beginPath(); ctx.moveTo(bodyLX, 0); ctx.lineTo(bodyLX - r * 0.55, r * 0.3); ctx.lineTo(bodyLX - r * 0.55, -r * 0.3); ctx.closePath(); ctx.fillStyle = 'rgba(0,0,0,0.75)'; ctx.fill();
   drawEyes(ctx, r * 0.62, -r * 0.06, 0, r, { sepFactor: 0.3, forward: 0.1 }); ctx.restore();
 }
+
+export function drawStarfish(ctx, x, y, r, angle = 0, color = '#ff8f3d') {
+  const arms = 5;
+  const inner = r * 0.45;
+  const outer = r * 1.05;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.beginPath();
+  for (let i = 0; i < arms * 2; i++) {
+    const a = (i / (arms * 2)) * Math.PI * 2;
+    const rr = i % 2 === 0 ? outer : inner;
+    const px = Math.cos(a) * rr;
+    const py = Math.sin(a) * rr;
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  const grad = ctx.createRadialGradient(0, 0, inner * 0.6, 0, 0, outer);
+  grad.addColorStop(0, color);
+  grad.addColorStop(1, 'rgba(255,255,255,0.08)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+}
+
+export function drawCrab(ctx, x, y, r, angle = 0, color = '#d64c4c') {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r * 1.2, r * 0.9, 0, 0, Math.PI * 2);
+  const grad = ctx.createLinearGradient(-r, -r, r, r);
+  grad.addColorStop(0, color);
+  grad.addColorStop(1, 'rgba(255,255,255,0.1)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(r * 1.2, -r * 0.2);
+  ctx.lineTo(r * 1.8, -r * 0.6);
+  ctx.lineTo(r * 1.6, -r * 0.1);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(r * 1.2, r * 0.2);
+  ctx.lineTo(r * 1.8, r * 0.6);
+  ctx.lineTo(r * 1.6, r * 0.1);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.fillStyle = color;
+  for (let i = -3; i <= 3; i++) {
+    const yy = i * r * 0.25;
+    ctx.fillRect(-r * 0.8, yy, r * 0.5, r * 0.12);
+  }
+  drawEyes(ctx, r * 0.2, -r * 0.6, 0, r * 0.7, { sepFactor: 0.3, forward: 0 });
+  ctx.restore();
+}
+
+export function drawShrimp(ctx, x, y, r, angle = 0, color = '#f28ea6') {
+  const segs = 6;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  for (let i = 0; i < segs; i++) {
+    const t = i / (segs - 1);
+    const segW = r * (1.0 - t * 0.35);
+    const segH = r * (0.7 - t * 0.15);
+    const sx = -r * 1.0 + i * r * 0.5;
+    const sy = Math.sin(t * Math.PI) * r * 0.2;
+    ctx.beginPath();
+    ctx.ellipse(sx, sy, segW, segH, 0, 0, Math.PI * 2);
+    const grad = ctx.createLinearGradient(sx - segW, sy - segH, sx + segW, sy + segH);
+    grad.addColorStop(0, color);
+    grad.addColorStop(1, 'rgba(255,255,255,0.1)');
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  ctx.moveTo(r * 0.3, -r * 0.2);
+  ctx.lineTo(r * 1.1, -r * 0.5);
+  ctx.moveTo(r * 0.3, r * 0.2);
+  ctx.lineTo(r * 1.1, r * 0.5);
+  ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  drawEyes(ctx, r * 0.2, -r * 0.1, 0, r * 0.8, { sepFactor: 0.35, forward: 0.12 });
+  ctx.restore();
+}
+
+export function drawTurtle(ctx, x, y, r, angle = 0, color = '#3f7f5a') {
+  const bodyLX = r * 1.25;
+  const bodyLY = r * 0.95;
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.beginPath();
+  ctx.ellipse(0, 0, bodyLX, bodyLY, 0, 0, Math.PI * 2);
+  const grad = ctx.createLinearGradient(-bodyLX, -bodyLY, bodyLX, bodyLY);
+  grad.addColorStop(0, color);
+  grad.addColorStop(1, 'rgba(255,255,255,0.1)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(bodyLX + r * 0.35, 0, r * 0.36, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-bodyLX * 0.4, -bodyLY);
+  ctx.lineTo(-bodyLX * 0.9, -bodyLY * 0.6);
+  ctx.lineTo(-bodyLX * 0.5, -bodyLY * 0.4);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-bodyLX * 0.4, bodyLY);
+  ctx.lineTo(-bodyLX * 0.9, bodyLY * 0.6);
+  ctx.lineTo(-bodyLX * 0.5, bodyLY * 0.4);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+  drawEyes(ctx, bodyLX + r * 0.35, -r * 0.06, 0, r * 0.9, { sepFactor: 0.28, forward: 0.08 });
+  ctx.restore();
+}
+
+export function drawJellyfish(ctx, x, y, r, angle = 0, color = '#a8c0ff') {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.beginPath();
+  ctx.ellipse(0, -r * 0.2, r * 1.2, r * 0.9, 0, 0, Math.PI);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(-r, -r, r, r);
+  grad.addColorStop(0, color);
+  grad.addColorStop(1, 'rgba(255,255,255,0.15)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(200,220,255,0.5)';
+  ctx.lineWidth = 1.5;
+  for (let i = -4; i <= 4; i++) {
+    const tx = i * r * 0.25;
+    ctx.beginPath();
+    ctx.moveTo(tx, 0);
+    ctx.lineTo(tx + Math.sin(i) * r * 0.15, r * 1.2);
+    ctx.stroke();
+  }
+  ctx.restore();
+}

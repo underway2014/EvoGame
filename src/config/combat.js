@@ -6,7 +6,7 @@ export const combatConfig = {
     addUsesPerLevel: (level) => (level % 3 === 0 ? 2 : 0), // 每5级+1次
   },
   darts: {
-    baseAmmoOnStart: 130,
+    baseAmmoOnStart: 10,
     addAmmoPerLevel: (level) => (level % 1 === 0 ? 1 : 0), // 每3级+1枚
     speed: 380,
     lifetimeSec: 3.0,

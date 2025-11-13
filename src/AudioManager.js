@@ -99,7 +99,14 @@ export default class AudioManager {
     if (this.gain) this.gain.gain.value = this.volume;
   }
   ping(freq = 440, durationSec = 0.1, gainVal = 0.25) {
-    if (!this.ctx || !this.gain) return;
+    this.init();
+    if (!this.ctx) return;
+    if (!this.gain) {
+      const master = this.ctx.createGain();
+      master.gain.value = this.volume;
+      master.connect(this.ctx.destination);
+      this.gain = master;
+    }
     const osc = this.ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = freq;
     const g = this.ctx.createGain(); g.gain.value = gainVal;
     osc.connect(g); g.connect(this.gain);

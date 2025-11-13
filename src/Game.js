@@ -17,9 +17,10 @@ import Dart from './Dart.js';
 import { combatConfig } from './config/combat.js';
 
 export default class Game {
-  constructor(canvas, ctx) {
+  constructor(canvas, ctx, audio) {
     this.canvas = canvas;
     this.ctx = ctx;
+    this.audio = audio || null;
     // 使用CSS像素作为屏幕尺寸，避免与设备像素缩放混淆
     this.screen = { width: canvas.clientWidth || window.innerWidth, height: canvas.clientHeight || window.innerHeight };
     this.world = { width: 2400, height: 1800 };
@@ -258,6 +259,7 @@ export default class Game {
             const gained = combatConfig.darts.expOnHit(this.player.level, c.level);
             this.player.gainExp(gained);
             this.addExpText(gained);
+            if (this.audio) this.audio.ping(1100, 0.08, 0.25);
           } else {
             // 弹药不足，反馈提示
             const missing = requiredAmmo - (this.player.dartAmmo || 0);
@@ -377,21 +379,94 @@ export default class Game {
     }
     ctx.restore(); // 退出世界坐标，回到屏幕坐标
 
-    // HUD（屏幕坐标，响应式字体）
-    ctx.fillStyle = '#ffffff';
     const hudSize = Math.max(12, Math.min(20, Math.floor(this.screen.width * 0.02)));
-    ctx.font = `${hudSize}px system-ui`;
     const ratio = Math.max(0, Math.min(1, this.player.exp / this.player.expToNext));
     const mm = String(Math.floor(this.elapsed / 60)).padStart(2, '0');
     const ss = String(Math.floor(this.elapsed % 60)).padStart(2, '0');
-    const hud = `等级 ${this.player.level}  经验 ${Math.max(0, this.player.exp)}/${this.player.expToNext}  生物:${this.creatures.length}  吞噬:${this.devouredCount}  时间:${mm}:${ss}`;
-    // const hud2 = `加速:${this.player.boostUses}  飞镖:${this.player.dartAmmo}`;
-    ctx.fillText(hud, 12, 22);
-    // ctx.fillText(hud2, 12, 42);
-    const barW = 160, barH = 8;
-    ctx.strokeStyle = '#aaa';
-    ctx.strokeRect(12, 28, barW, barH);
-    ctx.fillStyle = '#4caf50';
-    ctx.fillRect(12, 28, barW * ratio, barH);
+    const px = 12;
+    const py = 12;
+    const pw = Math.max(260, Math.min(360, Math.floor(this.screen.width * 0.3)));
+    const barH = 10;
+    const ph = hudSize * 2 + 12 + barH + 24;
+    ctx.save();
+    ctx.beginPath();
+    const r = 10;
+    ctx.moveTo(px + r, py);
+    ctx.lineTo(px + pw - r, py);
+    ctx.quadraticCurveTo(px + pw, py, px + pw, py + r);
+    ctx.lineTo(px + pw, py + ph - r);
+    ctx.quadraticCurveTo(px + pw, py + ph, px + pw - r, py + ph);
+    ctx.lineTo(px + r, py + ph);
+    ctx.quadraticCurveTo(px, py + ph, px, py + ph - r);
+    ctx.lineTo(px, py + r);
+    ctx.quadraticCurveTo(px, py, px + r, py);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,255,255,0.10)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.stroke();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `600 ${hudSize}px system-ui`;
+    const line1Y = py + hudSize + 8;
+    ctx.fillText(`等级 ${this.player.level}`, px + 16, line1Y);
+    ctx.font = `500 ${Math.max(10, hudSize - 2)}px system-ui`;
+    const line2Y = line1Y + hudSize + 8;
+    ctx.fillText(`吞噬 ${this.devouredCount}`, px + 16, line2Y);
+    const timeText = `时间 ${mm}:${ss}`;
+    const tWidth = ctx.measureText(timeText).width;
+    ctx.fillText(timeText, px + pw - 16 - tWidth, line2Y);
+    const barX = px + 16;
+    const barY = line2Y + 10;
+    const barW = pw - 32;
+    ctx.beginPath();
+    const br = barH / 2;
+    ctx.moveTo(barX + br, barY);
+    ctx.lineTo(barX + barW - br, barY);
+    ctx.quadraticCurveTo(barX + barW, barY, barX + barW, barY + br);
+    ctx.lineTo(barX + barW, barY + barH - br);
+    ctx.quadraticCurveTo(barX + barW, barY + barH, barX + barW - br, barY + barH);
+    ctx.lineTo(barX + br, barY + barH);
+    ctx.quadraticCurveTo(barX, barY + barH, barX, barY + barH - br);
+    ctx.lineTo(barX, barY + br);
+    ctx.quadraticCurveTo(barX, barY, barX + br, barY);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,255,255,0.20)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.stroke();
+    const fillW = Math.max(0, Math.floor(barW * ratio));
+    if (fillW > 0) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(barX + br, barY);
+      const fEnd = barX + fillW;
+      const right = Math.min(fEnd, barX + barW);
+      if (fillW <= br) {
+        ctx.arc(barX + br, barY + br, br, -Math.PI / 2, Math.PI / 2);
+        ctx.lineTo(barX + br, barY);
+      } else {
+        ctx.lineTo(right - br, barY);
+        ctx.quadraticCurveTo(right, barY, right, barY + br);
+        ctx.lineTo(right, barY + barH - br);
+        ctx.quadraticCurveTo(right, barY + barH, right - br, barY + barH);
+        ctx.lineTo(barX + br, barY + barH);
+        ctx.quadraticCurveTo(barX, barY + barH, barX, barY + barH - br);
+        ctx.lineTo(barX, barY + br);
+        ctx.quadraticCurveTo(barX, barY, barX + br, barY);
+      }
+      const grad = ctx.createLinearGradient(barX, barY, barX + barW, barY);
+      grad.addColorStop(0, '#4caf50');
+      grad.addColorStop(1, '#00bcd4');
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.font = `600 ${Math.max(10, hudSize - 3)}px system-ui`;
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const expText = `经验 ${Math.max(0, this.player.exp)}/${this.player.expToNext}`;
+    ctx.fillText(expText, barX + barW / 2, barY + barH / 2);
+    ctx.restore();
   }
 }

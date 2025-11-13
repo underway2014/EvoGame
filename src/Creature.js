@@ -1,4 +1,4 @@
-import { drawBlob, drawCapsule, drawTriangle, drawEyes, drawFishGoby, drawFishPerch, drawFishBonito, drawFishMoray, drawFishPiranha, drawFishBarracuda, drawFishTuna, drawFishSailfish, drawFishReefShark, drawFishShark } from './Renderer.js';
+import { drawBlob, drawCapsule, drawTriangle, drawEyes, drawFishGoby, drawFishPerch, drawFishBonito, drawFishMoray, drawFishPiranha, drawFishBarracuda, drawFishTuna, drawFishSailfish, drawFishReefShark, drawFishShark, drawStarfish, drawCrab, drawShrimp, drawTurtle, drawJellyfish } from './Renderer.js';
 import { aggression } from './config/ai.js';
 
 export default class Creature {
@@ -120,6 +120,21 @@ export default class Creature {
         break;
       case 'fish_shark':
         drawFishShark(ctx, this.x, this.y, this.radius, angle, this.color, { animTime: performance.now() / 1000 });
+        break;
+      case 'starfish':
+        drawStarfish(ctx, this.x, this.y, this.radius, angle, this.color);
+        break;
+      case 'crab':
+        drawCrab(ctx, this.x, this.y, this.radius, angle, this.color);
+        break;
+      case 'shrimp':
+        drawShrimp(ctx, this.x, this.y, this.radius, angle, this.color);
+        break;
+      case 'turtle':
+        drawTurtle(ctx, this.x, this.y, this.radius, angle, this.color);
+        break;
+      case 'jellyfish':
+        drawJellyfish(ctx, this.x, this.y, this.radius, angle, this.color);
         break;
       case 'blob':
       default:
